@@ -1,0 +1,86 @@
+#include "/usr/share/X11/app-defaults/UXTerm"
+
+! Dark theme:
+
+
+! Light theme
+!  ;; name     256-value
+#define light_bg #dfdfdf
+#define light_fg #383a42
+#define dark_bg #282c34
+#define dark_fg #bbc2cf
+#define base0 #f0f0f0
+#define base1 #e7e7e7
+
+#define fg_alt #c6c7c7
+
+#define grey #9ca0a4
+#define red #e45649
+#define orange #da8548
+#define green #50a14f
+#define teal #4db5bd
+#define yellow #986801
+#define blue #4078f2
+#define dark_blue #a0bcf8
+#define magenta #a626a4
+#define violet #b751b6
+#define cyan #0184bc
+#define dark_cyan #005478
+
+XTerm*background: dark_bg
+XTerm*foreground: dark_fg
+*background: dark_bg
+XTerm*color0: dark_bg
+! foreground, standard files
+XTerm*color1: fg
+! Directories
+XTerm*color12: magenta
+! World writable files like (eg /tmp)
+XTerm*color2: orange
+! foreground for setuid file (/usr/bin/sudo)
+XTerm*color7: dark_blue
+! Orphaned symlinks, gzipped files
+XTerm*color9: red
+! executable binaries
+XTerm*color10: green
+! symlinks
+XTerm*color14: teal
+! background color for highlighted setuid file
+XTerm*color15: dark_blue
+
+*VT100*colorMode: on
+*VT100*boldColors: on
+*VT100*dynamicColors: on
+
+*termName: xterm-256color
+
+*VT100.locale: true
+*menuLocale: ""
+
+! Backspace settings
+*ptyInitialErase: true
+*metaSendsEscape: true
+*backarrowKey: true
+XTerm*backarrowKeyIsErase: true
+
+! XTerm fonts settings
+*faceName: DejaVu Sans Mono:style=book
+XTerm*faceSize: 11
+XTerm*faceSize1: 10
+XTerm*faceSize2: 12
+XTerm*faceSize3: 14
+XTerm*faceSize4: 18
+XTerm*faceSize5: 22
+XTerm*renderFont: true
+
+*utf8Title: true
+XTerm*saveLines: 4096
+XTerm*scrollTtyOutput: false
+XTerm*scrollKey: true
+
+XTerm*CursorColor: blue
+XTerm*cursorBlink: true
+
+XTerm*VT100.translations: #override \n\
+        Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+	Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
