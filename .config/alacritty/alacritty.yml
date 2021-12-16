@@ -224,7 +224,7 @@ schemes:
         cyan:       '#56b6c2'
         white:      '#828997' # mono-2
 
-colors: *dark
+colors: *light
 
 # Colors (Tomorrow Night)
 #colors:
