@@ -12,7 +12,7 @@
   (let ((m (stumpwm:make-sparse-keymap)))
     (stumpwm:define-key m (stumpwm:kbd "f") "exec firefox")
     (stumpwm:define-key m (stumpwm:kbd "e") "exec emacs")
-    (stumpwm:define-key m (stumpwm:kbd "c") "exec xterm")
+    (stumpwm:define-key m (stumpwm:kbd "c") "exec alacritty")
     m
   ))
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "SPC") '*launch-map*)
