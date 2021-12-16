@@ -1,2 +1,0 @@
-SSH_AGENT_PID     Default=
-SSH_AUTH_SOCK     Default=$(gpgconf --list-dirst agent-ssh-socket)

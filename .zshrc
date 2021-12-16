@@ -28,6 +28,7 @@ alias firefox=firefox-developper-edition
 # Managing dotfiles
 ######################################################
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias config-secure='/usr/bin/git --git-dir=$HOME/.cfg-secure --work-tree=$HOME'
 
 ######################################################
 # Pacman configuration
