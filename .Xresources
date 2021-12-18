@@ -1,14 +1,14 @@
 #include "/usr/share/X11/app-defaults/UXTerm"
 
 ! Dark theme:
-
+#define dark_bg #282c34
+#define dark_fg #bbc2cf
 
 ! Light theme
 !  ;; name     256-value
 #define light_bg #dfdfdf
 #define light_fg #383a42
-#define dark_bg #282c34
-#define dark_fg #bbc2cf
+
 #define base0 #f0f0f0
 #define base1 #e7e7e7
 
@@ -32,7 +32,7 @@ XTerm*foreground: dark_fg
 *background: dark_bg
 XTerm*color0: dark_bg
 ! foreground, standard files
-XTerm*color1: fg
+XTerm*color1: dark_fg
 ! Directories
 XTerm*color12: magenta
 ! World writable files like (eg /tmp)
@@ -52,10 +52,10 @@ XTerm*color15: dark_blue
 *VT100*boldColors: on
 *VT100*dynamicColors: on
 
-*termName: xterm-256color
-
 *VT100.locale: true
 *menuLocale: ""
+
+XTerm*termName: xterm-truecolor
 
 ! Backspace settings
 *ptyInitialErase: true
@@ -64,7 +64,8 @@ XTerm*color15: dark_blue
 XTerm*backarrowKeyIsErase: true
 
 ! XTerm fonts settings
-*faceName: DejaVu Sans Mono:style=book
+XTerm*faceName: Iosevka Term Medium Nerd
+! XTerm*faceName: DejaVu Sans Mono:style=book
 XTerm*faceSize: 11
 XTerm*faceSize1: 10
 XTerm*faceSize2: 12
@@ -73,14 +74,17 @@ XTerm*faceSize4: 18
 XTerm*faceSize5: 22
 XTerm*renderFont: true
 
-*utf8Title: true
-XTerm*saveLines: 4096
-XTerm*scrollTtyOutput: false
-XTerm*scrollKey: true
-
 XTerm*CursorColor: blue
 XTerm*cursorBlink: true
 
-XTerm*VT100.translations: #override \n\
+*utf8Title: true
+! Number of lines to save on display
+XTerm*saveLines: 4096
+! Do not scroll down on output
+XTerm*scrollTtyOutput: false
+! Scroll down on key press
+XTerm*scrollKey: true
+
+*VT100.translations: #override \n\
         Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
 	Ctrl Shift <Key>V: insert-selection(CLIPBOARD)

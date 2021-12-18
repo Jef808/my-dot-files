@@ -1,72 +1,65 @@
-! $UXTermId: XTerm-col.ad,v 1.22 2009/08/15 15:56:29 tom Exp $
 
 
-#define _background #282c34
+! #define _background #282c34
 ! Color1/foreground; Used for standard files, cursor...
-#define _foreground #bbc2cf
+! #define _foreground #bbc2cf
 ! Color2 used for world writable dirs (/tmp)
-#define _color2 #c678dd
+! #define _color2 #c678dd
 ! Color12 (used for dirs)
-#define _color12 #c678dd
+! #define _color12 #c678dd
 ! Color15 (symlinks)
-#define _color15 #51afef
+! #define _color15 #51afef
 ! Color10 (executable)
-#define _color10 #66AA11
+! #define _color10 #66AA11
 ! Blue for the cursor
-#define _myblue #5699AF
+! #define _myblue #5699AF
 
 ! *VT100*colorMode: on
-*VT100*colorBD: white
+! *VT100*colorBD: white
 ! Uncomment this to use color for the bold attribute
 ! *VT100*boldColors: on
 ! Uncomment this to use the bold/underline colors in preference to other colors
-!*VT100*colorAttrMode: on
+! *VT100*colorAttrMode: on
 ! *VT100*dynamicColors: on
-*termName: xterm-256color
+
 
 ! locale
-*VT100.locale: true
-*menuLocale: ""
+! *VT100.locale: true
+! *menuLocale: ""
 
 ! Backspace settings
-*ptyInitialErase: true
-*metaSendsEscape: true
-*backarrowKey: true
-XTerm*backarrowKeyIsErase: true
+! *ptyInitialErase: true
+! *metaSendsEscape: true
+! *backarrowKey: true
+! XTerm*backarrowKeyIsErase: true
 
 ! XTerm fonts settings
-*faceName: DejaVu Sans Mono:style=book
-XTerm*faceSize: 11
-XTerm*faceSize1: 10
-XTerm*faceSize2: 12
-XTerm*faceSize3: 14
-XTerm*faceSize4: 18
-XTerm*faceSize5: 22
-XTerm*renderFont: true
+! XTerm*faceName: DejaVu Sans Mono:style=book
+! XTerm*faceSize: 11
+! XTerm*faceSize1: 10
+! XTerm*faceSize2: 12
+! XTerm*faceSize3: 14
+! XTerm*faceSize4: 18
+! XTerm*faceSize5: 22
+! XTerm*renderFont: true
 
-*utf8Title: true
-! Number of lines to save on display
-XTerm*saveLines: 4096
-! Controls whether display automatically scrolls to bottom when a new line is printed
-XTerm*scrollTtyOutput: false
-! To scroll down on key press
-XTerm*scrollKey: true
+! *utf8Title: true
 ! Color the popup/pulldown menu border to match the text widget foreground.
 !*SimpleMenu*borderColor: gray15
 
-!*background: _background
-*foreground: _foreground
+! *background: _background
+! *foreground: _foreground
 
 !XTerm*background: _background
 !XTerm*background: gray15
 !XTerm*foreground: _foreground
-XTerm*color0: _background
-XTerm*color1: _foreground
-XTerm*color2: _color2
-XTerm*color12: _color12
-XTerm*color15: _color15
-XTerm*color10: _color10
+! XTerm*color0: _background
+! XTerm*color1: _foreground
+! XTerm*color2: _color2
+! XTerm*color12: _color12
+! XTerm*color15: _color15
+! XTerm*color10: _color10
 
 ! Cursor settings
-XTerm*CursorColor: _myblue
-XTerm*cursorBlink: true
+! XTerm*CursorColor: _myblue
+! XTerm*cursorBlink: true

@@ -1,24 +1,12 @@
 export PATH="$PATH:$HOME/.emacs.d/bin"
 export PATH="$HOME/.local/bin:$PATH"
-
-setopt incappendhistorytime
 export FCEDIT=nano
-######################################################
-# Histdb configuration
-######################################################
-source "$HOME/.oh-my-zsh/custom/plugins/zsh-histdb/sqlite-history.zsh"
-autoload -Uz add-zsh-hook
-#source "$HOME/.oh-my-zsh/custom/plugins/zsh-histdb/histdb-interactive.zsh"
-#bindkey '^r' _histdb-isearch
 
 ######################################################
-# fzf config
+# Zsh functions
 ######################################################
-source /usr/share/fzf/key-bindings.zsh
-source /usr/share/fzf/completion.zsh
-export LD_RUN_PATH=/usr/local/lib
-export LD_LIBRARY_PATH=/usr/local/lib
-#alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+fpath=("$HOME/.zfunctions" $fpath)
+
 ######################################################
 # Run mozilla developper edition as firefox
 ######################################################
@@ -46,3 +34,44 @@ alias sysu='systemctl --user'
 export GPG_TTY=$(tty)
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 gpg-connect-agent updatestartuptty /bye >/dev/null
+
+######################################################
+# Read user config when executing sudo nano
+######################################################
+alias sudo='sudo '
+alias nano='nano --rcfile ~/.nanorc'
+
+######################################################
+# Ideas from the grml's /etc/zshrc
+######################################################
+## (I've been meaning to set this up for so long!!)
+## stop at '/'s when doing 'forward/backward word'
+WORDCHARS='${WORDCHARS:s@/@}'
+## try to avoid the 'zsh: no matches found...'
+setopt nonomatch
+## warning if file exists ('cat /dev/null > ~/.zshrc')
+setopt NO_clobber
+## don't warn me about bg processes when exiting
+setopt nocheckjobs
+## changed completer settings
+#zstyle ':completion:*' completer _complete _correct _approximate
+#zstyle ':completion:*' expand prefix suffix
+## another different completer setting: expand shell aliases
+#zstyle ':completion:*' completer _complete _expand_alias _approximate
+
+######################################################
+# Histdb configuration
+######################################################
+source "$HOME/.oh-my-zsh/custom/plugins/zsh-histdb/sqlite-history.zsh"
+autoload -Uz add-zsh-hook
+#source "$HOME/.oh-my-zsh/custom/plugins/zsh-histdb/histdb-interactive.zsh"
+#bindkey '^r' _histdb-isearch
+
+######################################################
+# fzf config
+######################################################
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
+export LD_RUN_PATH=/usr/local/lib
+export LD_LIBRARY_PATH=/usr/local/lib
+alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"

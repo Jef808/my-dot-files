@@ -24,10 +24,10 @@ set atblanks
 set autoindent
 
 ## Back up files to the current filename plus a tilde.
-set backup
+#set backup
 
 ## The directory to put unique backup files in.
-set backupdir "~/.backups"
+set backupdir "/home/jfa/.backups"
 
 ## Use bold text instead of reverse video text.
 set boldtext
@@ -160,7 +160,7 @@ set trimblanks
 
 ## Detect word boundaries differently by treating punctuation
 ## characters as parts of words.
-set wordbounds
+#set wordbounds
 
 ## The characters (besides alphanumeric ones) that should be considered
 ## as parts of words.  This option does not have a default value.  When
@@ -169,7 +169,7 @@ set wordbounds
 
 ## Let an unmodified Backspace or Delete erase the marked region (instead
 ## of a single character, and without affecting the cutbuffer).
- set zap
+set zap
 
 ## Paint the interface elements of nano.  These are examples;
 ## by default there are no colors, except for errorcolor.

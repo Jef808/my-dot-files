@@ -7,6 +7,8 @@
 ;; The 'leader-key'
 (set-prefix-key (kbd "M-TAB"))
 
+;;(stumpwm:unbind (stumpwm:ksb "c"))
+
 ;; Application launch map
 (defvar *launch-map*
   (let ((m (stumpwm:make-sparse-keymap)))
