@@ -26,8 +26,8 @@ set autoindent
 ## Back up files to the current filename plus a tilde.
 #set backup
 
-## The directory to put unique backup files in.
-set backupdir "/home/jfa/.backups"
+# The directory to put unique backup files in.
+#set backupdir "/home/jfa/.backups"
 
 ## Use bold text instead of reverse video text.
 set boldtext
@@ -135,10 +135,10 @@ set softwrap
 
 ## Use the end of the title bar for some state flags: I = auto-indenting,
 ## M = mark, L = hard-wrapping long lines, R = recording, S = soft-wrapping.
-set stateflags
+#set stateflags
 
 ## Allow nano to be suspended (with ^Z by default).
-set suspendable
+#set suspendable
 ## (The old form of this option, 'set suspend', is deprecated.)
 
 ## Use this tab size instead of the default; it must be greater than 0.

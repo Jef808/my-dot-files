@@ -47,8 +47,6 @@ alias nano='nano --rcfile ~/.nanorc'
 ## (I've been meaning to set this up for so long!!)
 ## stop at '/'s when doing 'forward/backward word'
 WORDCHARS='${WORDCHARS:s@/@}'
-## try to avoid the 'zsh: no matches found...'
-setopt nonomatch
 ## warning if file exists ('cat /dev/null > ~/.zshrc')
 setopt NO_clobber
 ## don't warn me about bg processes when exiting
@@ -75,3 +73,4 @@ source /usr/share/fzf/completion.zsh
 export LD_RUN_PATH=/usr/local/lib
 export LD_LIBRARY_PATH=/usr/local/lib
 alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+
