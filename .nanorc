@@ -256,7 +256,7 @@ bind ^Space mark main
 
 bind ^_ undo all
 bind M-V pageup all
-bind M-D cutwordright main
+#bind M-D cutwordright main
 bind M-F nextword all
 bind M-B prevword all
 
