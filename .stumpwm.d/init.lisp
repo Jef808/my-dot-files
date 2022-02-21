@@ -76,6 +76,6 @@
 
 ;; Commands for custom screenlayout
 (defcommand hdmi-on () ()
-  (run-shell-command "hdmi-on"))
+  (run-shell-command "hdmi-on.sh"))
 (defcommand hdmi-off () ()
-  (run-shell-command "hdmi-off"))
+  (run-shell-command "hdmi-off.sh"))

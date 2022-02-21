@@ -39,3 +39,5 @@ export NO_AT_BRIDGE=1
 
 exec redshift &
 exec sbcl --load $HOME/.stumpwmstarter
+#exec i3
+#exec sway
