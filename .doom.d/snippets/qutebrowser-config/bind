@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bind
+# key: c.b
+# condition: t
+# --
+config.bind('<$1>', '$2')
+$0

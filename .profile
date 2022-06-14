@@ -1,5 +1,6 @@
-#export PYENV_ROOT="$HOME/.pyenv"
+#export PYENV_ROOT="$CONDA_PYTHON_EXE"
 #export PATH="$PYENV_ROOT/bin:$PATH"
 #eval "$(pyenv init --path)"
 
-export EDITOR=nano
+PATH="$HOME/.local/bin:$PATH"
+export npm_config_prefix="$HOME/.local"

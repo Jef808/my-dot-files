@@ -28,8 +28,6 @@
 
 ;(package! emacs-python-pytest :disable t)
 
-(package! clang-format+)
-
 ;; You can override the recipe of a built in package without having to specify
 ;; all the properties for `:recipe'. These will inherit the rest of its recipe
 ;; from Doom or MELPA/ELPA/Emacsmirror:
@@ -51,3 +49,30 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
+
+
+(package! slime)
+
+(package! clang-format+)
+
+;; Take control of a running chrome session, or
+;; Firefox after enabling its `GhostText' extension.
+(package! atomic-chrome)
+
+;; Gives you control over a bunch of ANSI escape codes to
+;; write good looking cli help
+(package! ox-ansi
+  :recipe (:host github :repo "tecosaur/ox-ansi"))
+
+(package! auto-activating-snippets
+  :recipe (:host github :repo "ymarco/auto-activating-snippets"))
+
+(package! LaTeX-auto-activating-snippets
+  :recipe (:host github :repo "tecosaur/LaTeX-auto-activating-snippets"))
+
+(package! org-modern
+  :recipe (:host github :repo "tecosaur/org-modern"))
+
+(package! modus-themes)
+
+(package! undo-tree)

@@ -1,7 +1,0 @@
-#+TITLE: Elfeed
-
-* root :elfeed:
-**  Mathematics :mathematics:
-*** [[http://arxiv.org/rss/math.DG][arXiv: Differential Geometry]] :geometry:
-**  Computer science :cs:
-*** [[http://arxiv.org/rss/cs.CG][Computational Geometry]] :geometry:

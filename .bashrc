@@ -6,4 +6,8 @@
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'
-PS1='[\u@\h \W]\$ '
+alias rnano='sudo nano'
+
+export CDPATH='.:~/'
+
+PS1='[\u \W]\$ '

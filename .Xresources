@@ -1,4 +1,4 @@
-#include "/usr/share/X11/app-defaults/UXTerm"
+! #include "/usr/share/X11/app-defaults/UXTerm"
 
 ! Dark theme:
 #define dark_bg #282c34
@@ -27,26 +27,37 @@
 #define cyan #0184bc
 #define dark_cyan #005478
 
-XTerm*background: dark_bg
-XTerm*foreground: dark_fg
+! XTerm*background: dark_bg
+! XTerm*foreground: dark_fg
 *background: dark_bg
-XTerm*color0: dark_bg
+*foreground: dark_fg
+
+! XTerm*color0: dark_bg
+*color0: dark_bg
 ! foreground, standard files
-XTerm*color1: dark_fg
+! XTerm*color1: dark_fg
+*color1: dark_fg
 ! Directories
-XTerm*color12: magenta
+! XTerm*color12: magenta
+*color12: magenta
 ! World writable files like (eg /tmp)
-XTerm*color2: orange
+! XTerm*color2: orange
+*color2: orange
 ! foreground for setuid file (/usr/bin/sudo)
-XTerm*color7: dark_blue
+! XTerm*color7: dark_blue
+*color7: dark_blue
 ! Orphaned symlinks, gzipped files
-XTerm*color9: red
+! XTerm*color9: red
+*color9: red
 ! executable binaries
-XTerm*color10: green
+! XTerm*color10: green
+*color10: green
 ! symlinks
-XTerm*color14: teal
+! XTerm*color14: teal
+*color14: teal
 ! background color for highlighted setuid file
-XTerm*color15: dark_blue
+! XTerm*color15: dark_blue
+*color15: dark_blue
 
 *VT100*colorMode: on
 *VT100*boldColors: on
@@ -88,3 +99,6 @@ XTerm*scrollKey: true
 *VT100.translations: #override \n\
         Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
 	Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+
+
+ssh-askpass*background: #dark-bg

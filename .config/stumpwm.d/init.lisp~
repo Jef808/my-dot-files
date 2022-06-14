@@ -12,6 +12,7 @@
 ;; Application launch map
 (defvar *launch-map*
   (let ((m (stumpwm:make-sparse-keymap)))
+    (stumpwm:define-key m (stumpwm:kbd "b") "exec qutebrowser")
     (stumpwm:define-key m (stumpwm:kbd "f") "exec firefox")
     (stumpwm:define-key m (stumpwm:kbd "e") "exec emacs")
     (stumpwm:define-key m (stumpwm:kbd "c") "exec alacritty")

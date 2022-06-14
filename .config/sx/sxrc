@@ -19,12 +19,9 @@ if [ -f "$userresources" ]; then
     xrdb -merge "$userresources"
 fi
 
-#
-#if [ -f "$usermodmap" ]; then
-#    xmodmap "$usermodmap"
-#fi
-
-# start some nice programs
+if [ -f "$usermodmap" ]; then
+    xmodmap "$usermodmap"
+fi
 
 if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  for f in /etc/X11/xinit/xinitrc.d/?*.sh ; do
@@ -33,11 +30,36 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  unset f
 fi
 
+# Swap the <Ctrl> and <Caps_Lock> keys
 setxkbmap -option ctrl:swapcaps
 
+# Add some fonts to the fonts path
+xset +fp $HOME/.local/share/fonts/ttf
+
+# et-book fonts for emacs' org-mode
+xset +fp $HOME/.local/share/fonts/et-book
+
+# To avoid loading the accessibility features
 export NO_AT_BRIDGE=1
 
-exec redshift &
+xsetroot -cursor_name left_ptr
+xset s off
+xset b off
+
+# Symlink to /usr/lib/ssh/x11-ssh-askpass
+# export SSH_ASKPASS=ssh-askpass
+
+redshift &
 exec sbcl --load $HOME/.stumpwmstarter
-#exec i3
-#exec sway
+# exec /usr/local/bin/stumpwm
+# /usr/local/bin/stumpwm
+
+#########
+# NOTE: #
+#########
+# The above wouldn't work at first, working alternative
+# was to remove the shebang line in this file, and
+# alias sx='sx sh .xinitrc'
+# in my .zshrc file.
+# (running 'sx' alone would give file permission error
+# coming from the .xinitrc script)
