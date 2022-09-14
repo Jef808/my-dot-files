@@ -3,27 +3,107 @@
 ;;
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com"
-       org-directory "~/org/"
-       Info-additional-directory-list '("/home/jfa/.local/share/info/")
-       display-line-numbers-type t)
+       Info-additional-directory-list '("/home/jfa/.local/share/info/"))
 
 (defvar my-local-dir "~/.local/")
 
+(setq doom-font (font-spec :family "JetBrainsMono" :size 12 :weight 'light)
+      doom-variable-pitch-font (font-spec :family "DejaVu Sans" :size 13))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; general navigation
+;; UI
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! scroll-error-top-bottom t
+
+;; Don't display line number by default
+;; (makes a big difference in performance)
+(setq display-line-numbers-type nil)
+
+;; Prevents some cases of Emacs flickering.
+(add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
+
+(setq scroll-error-top-bottom t
       next-screen-context-lines 4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Completion
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Manual completion
+;; (make time before automatic completion prompts infinite)
+(after! company
+  (setq company-idle-delay nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lsp mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Disable some annoying lsp features
+(after! lsp-mode
+  (setq lsp-enable-symbol-highlighting nil))
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable nil   ; flycheck instead
+        lsp-ui-doc-enable nil))      ; C-c c k instead
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; magit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq magit-repository-directories '(("~/projects" . 2))
+      magit-save-repository-buffers nil
+      magit-inhibit-save-previous-winconf t)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Yasnippets
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar private-file-templates-dir
+  (expand-file-name "snippets/templates/" doom-user-dir)
+  "The path to a directory of yasnippet folders to use for file templates.")
+(use-package! yasnippets
+  :defer nil
+  :config (add-to-list 'yas-snippet-dirs 'private-file-templates-dir 'append #'eq))
+  
+(after! yasnippets
+  (set-file-template! "/CMakeLists\\.txt$" :mode cmake-mode)
+  (yas-reload-all))
+;;   ;; Add the above private file-templates directory to the yas snippet dirs alist
+;;   (add-to-list 'yas-snippet-dirs 'append #'eq)
+;;   ;; CMakeLists basic template
+;;   )
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dash docsets
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Javascript
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! jade-mode
+  (add-to-list 'auto-mode-alist '("\\.pug\\'" . jade-mode)))
+;; (use-package! vue-mode)
+(use-package! lsp-volar)
+(after! lsp-volar
+  (load! (concat doom-user-dir "modules/lang/vue/config.el")))
+(use-package! npm-mode)
+(use-package! tide
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fish compatibility
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-to-list 'auto-mode-alist '("\\.fish\\'" . sh-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sbcl and Slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! inferior-lisp-program "sbcl")
-;; (use-package! slime
-;;   :commands #'slime-setup
-;;    (load! (expand-file-name "~/quicklisp/slime-helper.el")))
-;; (after! slime
-;;     (slime-setup '(slime-company)))
+(after! slime
+  (load! (expand-file-name "~/quicklisp/slime-helper.el"))
+  (slime-setup '(slime-company)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; modeline
@@ -31,24 +111,20 @@
 (setq! display-time-day-and-date t
        display-time-24hr-format t
        display-time-mode t
-       display-battery-mode t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; General lsp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(setq! lsp-enable-indentation nil)
+       ;; display-battery-mode t
+       doom-modeline-github t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cc-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq lsp-clients-clangd-args '("-j=3"
-                                "--enable-config"
-                                "--background-index"
-                                "--clang-tidy"
-                                "--completion-style=detailed"
-                                "--header-insertion=iwyu"))
+(setq! lsp-clients-clangd-args '("-j=3"
+                                 "--enable-config"
+                                 "--background-index"
+                                 "--clang-tidy"
+                                 "--completion-style=detailed"
+                                 "--header-insertion=iwyu"))
                                 ;;"--header-insertion-decorators=0"))
-
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 ;(after! lsp-clangd (set-lsp-priority! 'clangd 2))
 (defun patch-lineup-inclass nil
   (defun +cc-c++-lineup-inclass (langelem)
@@ -69,6 +145,10 @@
 ;; (add-to-list 'python-mode-hook
 ;;              (add-to-list 'lsp-clients-python-library-directories "~/.emacs.d/.local/etc/"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Workspaces
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq +workspaces-on-switch-project-behavior t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Projectile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (add-to-list 'projectile-globally-ignored-directories "*build")
@@ -88,8 +168,8 @@
          bibtex-maintain-sorted-entries t
          bibtex-entry-delimiters "\n\n")
   ;; Makes it so that AucTeX asks for a master file automatically
-  (setq-default TeX-master nil)
-  )
+  (setq-default TeX-master nil))
+  
 
 ;; The global bibliography file
 (setq! citar-bibliography '("~/bib/references.bib")
@@ -99,22 +179,138 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! org-babel-default-header-args:jupyter-python '((:async . "yes")
-                                                      (:session . "py"))
-       org-default-notes-file (concat org-directory "/notes.org"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org-mode hooks         ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(add-hook! 'org-mode-hook #'org-modern-mode)
-(add-hook! 'org-agenda-finalize-hook #'org-modern-agenda)
+(setq org-directory "~/org/"
+      org-roam-directory (concat org-directory "roam/")
+      org-roam-db-location (concat org-directory ".org-roam.db")
+      org-roam-dailies-directory "journal/"
+      org-archive-location (concat org-directory ".archive/%s::")
+      org-agenda-files org-directory)
+
+;; Use org-modern styles
+(add-hook! 'org-mode-hook #'org-modern-mode
+           'org-agenda-finalize-hook #'org-modern-agenda)
+
+(after! org
+  (setq org-startup-folded 'show2levels
+        org-ellipsis " [...] "
+        org-capture-templates
+        '(("t" "todo" entry (file+headline "todo.org" "Unsorted")
+           "* [ ] %?\n%i\n%a"
+           :prepend t)
+          ("d" "deadline" entry (file+headline "todo.org" "Schedule")
+           "* [ ] %?\nDEADLINE: <%(org-read-date)>\n\n%i\n%a"
+           :prepend t)
+          ("s" "schedule" entry (file+headline "todo.org" "Schedule")
+           "* [ ] %?\nSCHEDULED: <%(org-read-date)>\n\n%i\n%a"
+           :prepend t)
+          ("c" "check out later" entry (file+headline "todo.org" "Check out later")
+           "* [ ] %?\n%i\n%a"
+           :prepend t)
+          ("l" "ledger" plain (file "ledger.gpg")
+           "%(+beancount/clone-transaction)"))))
+
+(after! org-roam
+  (setq org-roam-capture-templates
+        `(("n" "note" plain
+           ,(format "#+title: ${title}\n%%[%s/template/note.org]" org-roam-directory)
+           :target (file "note/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("r" "thought" plain
+           ,(format "#+title: ${title}\n%%[%s/template/thought.org]" org-roam-directory)
+           :target (file "thought/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("t" "topic" plain
+           ,(format "#+title: ${title}\n%%[%s/template/topic.org]" org-roam-directory)
+           :target (file "topic/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("c" "contact" plain
+           ,(format "#+title: ${title}\n%%[%s/template/contact.org]" org-roam-directory)
+           :target (file "contact/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("p" "project" plain
+           ,(format "#+title: ${title}\n%%[%s/template/project.org]" org-roam-directory)
+           :target (file "project/%<%Y%m%d>-${slug}.org")
+           :unnarrowed t)
+          ("i" "invoice" plain
+           ,(format "#+title: %%<%%Y%%m%%d>-${title}\n%%[%s/template/invoice.org]" org-roam-directory)
+           :target (file "invoice/%<%Y%m%d>-${slug}.org")
+           :unnarrowed t)
+          ("f" "ref" plain
+           ,(format "#+title: ${title}\n%%[%s/template/ref.org]" org-roam-directory)
+           :target (file "ref/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("w" "works" plain
+           ,(format "#+title: ${title}\n%%[%s/template/works.org]" org-roam-directory)
+           :target (file "works/%<%Y%m%d%H%M%S>-${slug}.org")
+           :unnarrowed t)
+          ("s" "secret" plain "#+title: ${title}\n\n"
+           :target (file "secret/%<%Y%m%d%H%M%S>-${slug}.org.gpg")
+           :unnarrowed t))
+        ;; Use human readable dates for dailies titles
+        org-roam-dailies-capture-templates
+        '(("d" "default" entry "* %?"
+           :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%B %d, %Y>\n\n")))))
+
+(after! org-roam
+  ;; Offer completion for #tags and @areas separately from notes.
+  (add-to-list 'org-roam-completion-functions #'org-roam-complete-tag-at-point)
+
+  ;; Automatically update the slug in the filename when #+title: has changed.
+  (add-hook 'org-roam-find-file-hook #'org-roam-update-slug-on-save-h)
+
+  ;; Make the backlinks buffer easier to peruse by folding leaves by default.
+  (add-hook 'org-roam-buffer-postrender-functions #'magit-section-show-level-2)
+
+  ;; List dailies and zettels separately in the backlinks buffer.
+  (advice-add #'org-roam-backlinks-section :override #'org-roam-grouped-backlinks-section)
+
+  ;; Open in focused buffer, despite popups
+  (advice-add #'org-roam-node-visit :around #'+popup-save-a)
+
+  ;; Make sure tags in vertico are sorted by insertion order, instead of
+  ;; arbitrarily (due to the use of group_concat in the underlying SQL query).
+  (advice-add #'org-roam-node-list :filter-return #'org-roam-restore-insertion-order-for-tags-a)
+
+  ;; Add ID, Type, Tags, and Aliases to top of backlinks buffer.
+  (advice-add #'org-roam-buffer-set-header-line-format :after #'org-roam-add-preamble-a))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Doom-dashboard
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq fancy-splash-image (concat doom-user-dir "splash.png"))
+;; Hide the menu for as minimalistic a startup screen as possible.
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Emacs everywhere
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! emacs-everywhere
+  ;; Easier to match with a bspwm rule:
+  ;;   bspc rule -a 'Emacs:emacs-everywhere' state=floating sticky=on
+  (setq emacs-everywhere-frame-name-format "emacs-anywhere")
+
+  ;; The modeline is not useful to me in the popup window. It looks much nicer
+  ;; to hide it.
+  (remove-hook 'emacs-everywhere-init-hooks #'hide-mode-line-mode)
+
+  ;; Semi-center it over the target window, rather than at the cursor position
+  ;; (which could be anywhere).
+  (defadvice! center-emacs-everywhere-in-origin-window (frame window-info)
+    :override #'emacs-everywhere-set-frame-position
+    (cl-destructuring-bind (x y width height)
+        (emacs-everywhere-window-geometry window-info)
+      (set-frame-position frame
+                          (+ x (/ width 2) (- (/ width 2)))
+                          (+ y (/ height 2))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org-mode latex         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq org-latex-pdf-process
-      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+;; (setq org-latex-pdf-process
+;;       '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+;;         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+;;         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; snippets
@@ -123,6 +319,16 @@
 (setq! yas-default-user-snippets-dir +snippets-dir)
 ;;(yas-global-mode t)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lookup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; For python-mode
+(set-lookup-handlers! 'python-mode
+  :definition #'anaconda-mode-find-definitions
+  :references #'anaconda-mode-find-references
+  :documentation #'anaconda-mode-show-doc)
+;; For rjsx-mode (javascript)
+(set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; RSS feed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -133,18 +339,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Email access configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! mu4e
-  (setq! sendmail-program (executable-find "msmtp")
-         send-mail-function #'smtpmail-send-it
-         message-sendmail-f-is-evil nil
-         message-sendmail-extra-arguments '("--read-envelope-from")
-         message-send-mail-function #'message-send-mail-with-sendmail))
+(set-email-account! "[Gmail]"
+  '((mu4e-sent-folder       . "/[Gmail]/Sent Mail")
+    ;;(mu4e-drafts-folder     . "/bar.com/Drafts")
+    (mu4e-trash-folder      . "/[Gmail]/Trash")
+    (mu4e-refile-folder     . "/[Gmail]/All Mail")
+    (smtpmail-smtp-user     . "jf.arbour@gmail.com"))
+    ;;(user-mail-address      . "foo@bar.com")    ;; only needed for mu < 1.4
+    ;;(mu4e-compose-signature . "---\nYours truly\nThe Baz"))
+  t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Markdown mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! flycheck-markdown-markdownlint-cli-executable
        (file-name-concat my-local-dir "bin/marked"))
+
+;; (setq! grip-github-user "Jef808"
+;;        grip-github-password "")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modus themes
@@ -154,9 +366,9 @@
        modus-themes-paren-match '(bold)
        modus-themes-bold-constructs t
        modus-themes-italic-constructs t
-       modus-themes-org-blocks '(gray-background)  ; tinted-background
+       modus-themes-org-blocks '(gray-background))  ; tinted-background
        ;modus-themes-syntax '(alt-syntax)
-       )
+       
 ;; Themes need to be reloaded for the non-default variable
 ;; values to kick in
 ;(load-theme modus-operandi t)

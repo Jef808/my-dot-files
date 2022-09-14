@@ -11,19 +11,19 @@
 
 ;; Application launch map
 (defvar *launch-map*
-  (let ((m (stumpwm:make-sparse-keymap)))
-    (stumpwm:define-key m (stumpwm:kbd "b") "exec qutebrowser")
-    (stumpwm:define-key m (stumpwm:kbd "f") "exec firefox")
-    (stumpwm:define-key m (stumpwm:kbd "e") "exec emacs")
-    (stumpwm:define-key m (stumpwm:kbd "c") "exec alacritty")
-    (stumpwm:define-key m (stumpwm:kbd "d") "exec dmenu")
+  (let ((m (make-sparse-keymap)))
+    (define-key m (kbd "b") "exec qutebrowser")
+    (define-key m (kbd "f") "exec firefox")
+    (define-key m (kbd "e") "exec emacs")
+    (define-key m (kbd "c") "exec alacritty")
+    (define-key m (kbd "d") "exec dmenu_run -fn 'JetBrains Sans Mono-18'")
     m
   ))
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "SPC") *launch-map*)
+(define-key *root-map* (kbd "SPC") '*launch-map*)
 
 ;; Redefine keys to behave emacs-like when focused window
 ;; has class firefox or Chrome (redirects firefox's keys)
-;; (stumpwm:define-remapped-keys
+;; (define-remapped-keys
 ;;   (("(firefox|Chrome)"
 ;;      ("C-n"   . "Down")
 ;;      ("C-p"   . "Up")
@@ -43,7 +43,7 @@
 ;;      ("M-f"   . "C-Right")
 ;;      ("M-b"   . "C-Left")
 ;;      ("C-M-k" . "C-w")
-;;      ("C-k"   . ("C-S-End" "C-x")))))
+;;      ("C-k"   . "C-q"))))
 
 ;; If circumventing the above remapping is needed
 ;; e.g. when setting up keybindings on the browser
@@ -61,6 +61,12 @@
 (define-key *root-map* (kbd "M-h") "move-window left")
 (define-key *root-map* (kbd "M-l") "move-window right")
 
+;; Help
+(define-key *root-map* (kbd "d")  '*help-map*)
+
+;; Message window
+(setf *data-dir* "/home/jfa/.local/share/stumpwm")
+
 ;; Modeline formatting
 (setf *mode-line-pad-x* 5
       *mode-line-pad-y* 8)
@@ -68,13 +74,21 @@
 (setf *screen-mode-line-format*
       "[^B%n^b] %v^>%d   ")
 
+;; Message window font
 ;; NOTE: Doesn't use fontconfig, need to make sure Xorg knows the font
 ;; can do that with mkfontdir <fontpath> && xset +fp <fontpath>, then
 ;; get the available XLFD (X Logical Font Description) string with xlsfonts
 ;; or xfontsel
 (set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
+
+;; Input and Message window placements
+(setf *message-window-gravity* :top)
+(setf *message-window-input-gravity* :top)
+(setf *input-window-gravity* :top)
+
+
 ;; Enable modeline
-(stumpwm:enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
+(enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
 
 ;; Commands for custom screenlayout
 (defcommand hdmi-on () ()
@@ -85,11 +99,24 @@
   (run-shell-command "mishascreen-on.sh"))
 (defcommand mishascreen-off () ()
   (run-shell-command "mishascreen-off.sh"))
+(defcommand screenshot (window)
+  ((:string "Enter the window name: "))
+  (run-shell-command (concat "screenshot.sh " window)))
 
 ;; emacs everywhere
 (defcommand emacs-everywhere () ()
   (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
+(define-key *root-map* (kbd "E") "emacs-everywhere")
 
+;; Custom commands
+(defun kill-windows-by-title-containing (substr)
+  (labels ((match (win)
+             (search substr (window-title win))))
+    (mapcar #'delete-window
+            (remove-if-not #'match (group-windows (current-group))))))
+(defcommand kill-qutebrowser-windows () ()
+  (kill-windows-by-title-containing "qutebrowser"))
+(define-key *root-map* (kbd "P") "kill-all-qutebrowser-windows")
 
 ;; swank server
 (require :swank)

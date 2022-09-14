@@ -29,14 +29,14 @@
 
 ! XTerm*background: dark_bg
 ! XTerm*foreground: dark_fg
-*background: dark_bg
-*foreground: dark_fg
+*background: light_bg
+*foreground: light_fg
 
 ! XTerm*color0: dark_bg
-*color0: dark_bg
+*color0: light_bg
 ! foreground, standard files
-! XTerm*color1: dark_fg
-*color1: dark_fg
+! XTerm*color1: light_fg
+*color1: light_fg
 ! Directories
 ! XTerm*color12: magenta
 *color12: magenta
@@ -101,4 +101,4 @@ XTerm*scrollKey: true
 	Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
 
 
-ssh-askpass*background: #dark-bg
+ssh-askpass*background: #light_bg

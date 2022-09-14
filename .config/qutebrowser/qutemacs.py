@@ -26,7 +26,7 @@ c = c  # type: ConfigContainer # noqa: F821 pylint: disable=E0602,C0103
 
 
 
-c.bindings.default['normal'] = {}
+#c.bindings.default['normal'] = {}
 # Bindings
 c.bindings.commands['normal'] = {
     # Navigation

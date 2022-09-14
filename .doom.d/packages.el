@@ -52,17 +52,18 @@
 
 
 (package! slime)
+(package! slime-company)
 
-(package! clang-format+)
+;;(package! clang-format+)
+
+;; (package! doom-snippets
+;;   :recipe (:local-repo "~/projects/conf/doom-snippets"
+;;            :files ("*.el" "snippets")
+;;            :build (:not compile)))
 
 ;; Take control of a running chrome session, or
 ;; Firefox after enabling its `GhostText' extension.
-(package! atomic-chrome)
-
-;; Gives you control over a bunch of ANSI escape codes to
-;; write good looking cli help
-(package! ox-ansi
-  :recipe (:host github :repo "tecosaur/ox-ansi"))
+;;(package! atomic-chrome)
 
 (package! auto-activating-snippets
   :recipe (:host github :repo "ymarco/auto-activating-snippets"))
@@ -73,6 +74,10 @@
 (package! org-modern
   :recipe (:host github :repo "tecosaur/org-modern"))
 
-(package! modus-themes)
+;; (package! modus-themes)
 
-(package! undo-tree)
+;; (package! vue-mode)
+(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+(package! npm-mode)
+
+(package! tide)

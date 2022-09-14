@@ -49,7 +49,7 @@ xset b off
 # Symlink to /usr/lib/ssh/x11-ssh-askpass
 # export SSH_ASKPASS=ssh-askpass
 
-redshift &
+# redshift &
 exec sbcl --load $HOME/.stumpwmstarter
 # exec /usr/local/bin/stumpwm
 # /usr/local/bin/stumpwm
