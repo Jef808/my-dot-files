@@ -36,9 +36,9 @@ config.load_autoconfig(True)
 
 #c.colors.statusbar.normal.bg = xresources['*background']
 
-# config.set("content.headers.user_agent", "Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0")
-# config.set("content.headers.accept_language", "en-US,en;q=0.5")
-# config.set("content.headers.custom", {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
+config.set("content.headers.user_agent", "Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0")
+config.set("content.headers.accept_language", "en-US,en;q=0.5")
+config.set("content.headers.custom", {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'})
 
 
 ## Aliases for commands. The keys of the given dictionary are the
@@ -108,8 +108,6 @@ c.bindings.key_mappings = {'<Ctrl-g>': '<Escape>', '<Ctrl-x><Ctrl-k>': '<Ctrl-x>
 ##   - patch: Show changelog for major, minor and patch upgrades (e.g. v2.0.0 -> v2.0.1).
 ##   - never: Never show changelog after upgrades.
 # c.changelog_after_upgrade = 'minor'
-
-
 
 
 

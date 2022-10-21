@@ -74,9 +74,14 @@
 (package! org-modern
   :recipe (:host github :repo "tecosaur/org-modern"))
 
-;; (package! modus-themes)
+(package! google-c-style
+ :recipe (:host github :repo "google/styleguide"
+          :files ("google-c-style.el")))
 
-;; (package! vue-mode)
+(package! vue-mode)
+
+(package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+
 (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 (package! npm-mode)
 

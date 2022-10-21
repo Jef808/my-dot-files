@@ -1,0 +1,52 @@
+{
+  "projects": [
+    {
+      "id": "H8z-_GGT0",
+      "path": "/home/jfa/projects/ai/app",
+      "favorite": 0,
+      "type": "vue",
+      "name": "",
+      "openDate": 1663259128560,
+      "widgets": [
+        {
+          "id": "FXIeT9fBTa",
+          "definitionId": "org.vue.widgets.kill-port",
+          "x": 3,
+          "y": 0,
+          "width": 2,
+          "height": 1,
+          "configured": true,
+          "config": null
+        }
+      ]
+    }
+  ],
+  "foldersFavorite": [],
+  "tasks": [
+    {
+      "id": "/home/jfa/projects/ai/app/ml-viewer:inspect",
+      "answers": {
+        "$_overrideArgs": false,
+        "mode": "test",
+        "verbose": false
+      }
+    },
+    {
+      "id": "/home/jfa/projects/ai/app/ml-viewer:lint",
+      "answers": {
+        "$_overrideArgs": false,
+        "noFix": false
+      }
+    },
+    {
+      "id": "/home/jfa/projects/ai/app:lint",
+      "answers": {
+        "$_overrideArgs": false,
+        "noFix": false
+      }
+    }
+  ],
+  "config": {
+    "lastOpenProject": "H8z-_GGT0"
+  }
+}

@@ -18,9 +18,6 @@ xsetroot -cursor_name left_ptr
 xset s off
 xset b off
 
-# Symlink to /usr/lib/ssh/x11-ssh-askpass
-# export SSH_ASKPASS=ssh-askpass
-
-#/usr/bin/redshift &
+/usr/bin/redshift &
 
 sbcl --load $HOME/.stumpwmstarter

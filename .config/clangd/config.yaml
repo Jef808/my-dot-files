@@ -1,3 +1,19 @@
 CompileFlags:
-  Add: [-std=c++17]
+  Add: [-Wall]
   Compiler: g++
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+Hover:
+  ShowAKA: Yes
+Diagnostics:
+  ClangTidy:
+    Add: [bugprone*, cppcoreguidelines*, performance*, modernize*]
+    Remove:
+      [
+        modernize-use-trailing-return-type,
+        modernize-avoid-c-arrays,
+        bugprone-easily-swappable-parameters,
+      ]
+  UnusedIncludes: Strict

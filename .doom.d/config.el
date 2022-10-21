@@ -1,14 +1,22 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 ;;
 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; General settings
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com"
        Info-additional-directory-list '("/home/jfa/.local/share/info/"))
 
-(defvar my-local-dir "~/.local/")
+
+(add-load-path!
+   "editor/formatting/"
+   "editor/file_templates/"
+   "snippets/")
 
 (setq doom-font (font-spec :family "JetBrainsMono" :size 12 :weight 'light)
       doom-variable-pitch-font (font-spec :family "DejaVu Sans" :size 13))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI
@@ -24,14 +32,16 @@
 (setq scroll-error-top-bottom t
       next-screen-context-lines 4)
 
+(after! windmove
+  (load! "buffer-move.el" (expand-file-name "buffers/" doom-user-dir)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Manual completion
 ;; (make time before automatic completion prompts infinite)
-(after! company
-  (setq company-idle-delay nil))
+;; (after! company
+;;   (setq company-idle-delay nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp mode
@@ -43,6 +53,25 @@
 (after! lsp-ui
   (setq lsp-ui-sideline-enable nil   ; flycheck instead
         lsp-ui-doc-enable nil))      ; C-c c k instead
+
+;; clangd client parameters
+(setq! clangd-args '("-j=2"
+                     "--log=error"
+                     "--all-scopes-completion"
+                     "--completion-parse=auto"
+                     "--header-insertion-decorators"
+                     "--malloc-trim"
+                     "--pch-storage=memory"
+                     "--query-driver=gcc,g++,*-gcc,*-g++"
+                     "--enable-config"
+                     "--background-index"
+                     "--clang-tidy"
+                     "--completion-style=detailed"
+                     "--header-insertion=iwyu"
+                     "--limit-references=500"
+                     "--limit-results=50"
+                     "--offset-encoding=utf-8"))
+(setq! lsp-clients-clangd-args clangd-args)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; magit
@@ -61,41 +90,42 @@
   "The path to a directory of yasnippet folders to use for file templates.")
 (use-package! yasnippets
   :defer nil
-  :config (add-to-list 'yas-snippet-dirs 'private-file-templates-dir 'append #'eq))
-  
-(after! yasnippets
-  (set-file-template! "/CMakeLists\\.txt$" :mode cmake-mode)
-  (yas-reload-all))
+  :config
+  (add-to-list 'yas-snippet-dirs 'private-file-templates-dir 'append #'eq)
+  :after
+  (set-file-template! 'cmake-mode
+    (yas-reload-all)))
+
 ;;   ;; Add the above private file-templates directory to the yas snippet dirs alist
 ;;   (add-to-list 'yas-snippet-dirs 'append #'eq)
 ;;   ;; CMakeLists basic template
 ;;   )
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Dash docsets
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Javascript
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! jade-mode
-  (add-to-list 'auto-mode-alist '("\\.pug\\'" . jade-mode)))
-;; (use-package! vue-mode)
+(setq! lsp-eslint-code-action-disable-rule-comment t
+       lsp-eslint-code-action-show-documentation t
+       )
+
+(use-package! lsp-tailwindcss)
+
+(use-package! vue-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
+  )
+
 (use-package! lsp-volar)
 (after! lsp-volar
   (load! (concat doom-user-dir "modules/lang/vue/config.el")))
+
 (use-package! npm-mode)
+
 (use-package! tide
   :after (typescript-mode company flycheck)
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . tide-format-before-save)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fish compatibility
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-to-list 'auto-mode-alist '("\\.fish\\'" . sh-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sbcl and Slime
@@ -103,7 +133,8 @@
 (setq! inferior-lisp-program "sbcl")
 (after! slime
   (load! (expand-file-name "~/quicklisp/slime-helper.el"))
-  (slime-setup '(slime-company)))
+  (slime-setup '(slime-company))
+  (add-hook! 'slime-mode-hook :append '(sly-editing-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; modeline
@@ -111,39 +142,62 @@
 (setq! display-time-day-and-date t
        display-time-24hr-format t
        display-time-mode t
-       ;; display-battery-mode t
+       display-battery-mode t
        doom-modeline-github t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cc-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! lsp-clients-clangd-args '("-j=3"
-                                 "--enable-config"
-                                 "--background-index"
-                                 "--clang-tidy"
-                                 "--completion-style=detailed"
-                                 "--header-insertion=iwyu"))
-                                ;;"--header-insertion-decorators=0"))
+(setq! flycheck-cppcheck-standards "--std=c++2a")
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+;; (defun ++no-lsp-formatting ()
+;;   "Turn off lsp formatting."
+;;   (setq! +format-with-lsp nil))
+
+(use-package! google-c-style
+  :after-call c-mode-common-hook
+  :config (progn (google-set-c-style) (google-make-newline-indent)))
+
+;; (add-hook! 'c-mode-common-hook '(google-set-c-style
+;;                                  google-make-newline-indent))
+;; (use-package! clang-format+
+;;   :config
+;;   (setq! clang-format-style "file:/home/jfa/projects/.clang-format"))
+;; (set-formatter!
+;;   'clang-format
+;;   '("clang-format"
+;;     ("-assume-filename=%S" (or buffer-file-name mode-result ""))
+;;     ("-style=file:/home/jfa/projects/.clang-format"))
+;;   :modes
+;;   '((c-mode ".c")
+;;     (c++-mode ".cpp")))
+;; (add-hook! 'c-mode-common-hook :append '(++no-lsp-formatting
+;;                                          ;; clang-format+-mode
+;;                                          ))
+
+;;(set-eglot-client! 'cc-mode clangd-args)
+                                ;;"--header-insertion-decorators=0"))
+
+
 ;(after! lsp-clangd (set-lsp-priority! 'clangd 2))
-(defun patch-lineup-inclass nil
-  (defun +cc-c++-lineup-inclass (langelem)
-    "Indent inclass lines one level further than access modifier keywords."
-    (and (eq major-mode 'c++-mode)
-         (or (assoc 'access-label c-syntactic-context)
-             (save-excursion
-               (save-match-data
-                 (re-search-backward
-                  "\\(?:p\\(?:ublic\\|r\\(?:otected\\|ivate\\)\\)\\)"
-                  (c-langelem-pos langelem) t))))
-         '+)))
-(add-to-list 'c-mode-hook 'patch-lineup-inclass)
+;; (defun patch-lineup-inclass nil
+;;   (defun +cc-c++-lineup-inclass (langelem)
+;;     "Indent inclass lines one level further than access modifier keywords."
+;;     (and (eq major-mode 'c++-mode)
+;;          (or (assoc 'access-label c-syntactic-context)
+;;              (save-excursion
+;;                (save-match-data
+;;                  (re-search-backward
+;;                   "\\(?:p\\(?:ublic\\|r\\(?:otected\\|ivate\\)\\)\\)"
+;;                   (c-langelem-pos langelem) t))))
+;;          '+)))
+;; (add-to-list 'c-mode-hook 'patch-lineup-inclass)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (add-to-list 'python-mode-hook
-;;              (add-to-list 'lsp-clients-python-library-directories "~/.emacs.d/.local/etc/"))
+(after! python-mode
+  (setq conda-env-autoactivate-mode t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Workspaces
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -173,7 +227,7 @@
 
 ;; The global bibliography file
 (setq! citar-bibliography '("~/bib/references.bib")
-       citar-library-paths '("~/math/library")
+       citar-library-paths '("~/math/lib" "~/cs/lib")
        citar-notes-paths '("~/bib/notes"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -185,6 +239,11 @@
       org-roam-dailies-directory "journal/"
       org-archive-location (concat org-directory ".archive/%s::")
       org-agenda-files org-directory)
+
+(after! org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t))))
 
 ;; Use org-modern styles
 (add-hook! 'org-mode-hook #'org-modern-mode
@@ -329,6 +388,14 @@
   :documentation #'anaconda-mode-show-doc)
 ;; For rjsx-mode (javascript)
 (set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
+
+(setq! lsp-typescript-npm (concat doom-user-dir "node_modules/typescript")
+       lsp-typescript-tsdk (concat doom-user-dir "node_modules/typescript/lib")
+       lsp-typescript-tsserver-plugin-paths '((concat doom-user-dir "node_modules/typescript/lib/node_modules/typescript/bin")))
+
+(after! 'python-mode
+  (setq conda-env-autoactivate-mode t)
+  (setq conda-env-autoactivate-mode t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; RSS feed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -353,7 +420,7 @@
 ;; Markdown mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! flycheck-markdown-markdownlint-cli-executable
-       (file-name-concat my-local-dir "bin/marked"))
+       (file-name-concat "bin/marked"))
 
 ;; (setq! grip-github-user "Jef808"
 ;;        grip-github-password "")
@@ -377,3 +444,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Keybindings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; zooming in/out by controlling font size
+(map! :desc "increase font size"    "M-="           #'doom/increase-font-size
+      :desc "decrease font size"    "M--"           #'doom/decrease-font-size
+      :desc "reset font size"       "C-M-+"         #'doom/reset-font-size
+      :leader
+      (:prefix-map ("b" . "buffer movements")
+        :desc "Move current buffer to the left"  "h"  #'buffer-move-left
+        :desc "Move current buffer up"           "k"  #'buffer-move-up
+        :desc "Move current buffer to the right" "l"  #'buffer-move-right
+        :desc "Move current buffer down"         "j"  #'buffer-move-down))
