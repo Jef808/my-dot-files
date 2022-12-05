@@ -2473,9 +2473,11 @@ config.bind('y', 'prompt-accept yes', mode='yesno')
 
 config.bind('<Ctrl-C>k', 'tab-close')
 
-# config.source('qutemacs.py')
-
-
+## userscripts
+config.bind('<Ctrl-C><p>', 'spawn --userscript qute-pass')
+config.bind('<Ctrl-C><u><p>', 'spawn --userscript qute-pass --username-only')
+config.bind('<Ctrl-C><P><p>', 'spawn --userscript qute-pass --password-only')
+config.bind('<Ctrl-C><o><p>', 'spawn --userscript qute-pass --otp-only')
 # Local Variables:
 # eval: (progn (yas-reload-all) (yas-load-directory (file-name-concat +snippets-dir "qutebrowser-config/")))
 # End:

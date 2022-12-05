@@ -1,9 +1,9 @@
-#!/bin/zsh
+#!/usr/bin/env sh
+
+[ -f /etc/xprofile ] && . /etc/xprofile
+[ -f ~/.xprofile ] && . ~/.xprofile
 
 xrdb -merge "$HOME/.Xresources"
-
-# Swap the <Ctrl> and <Caps_Lock> keys
-setxkbmap -option ctrl:swapcaps
 
 # Add some fonts to the fonts path
 xset +fp $HOME/.local/share/fonts/ttf
@@ -14,10 +14,15 @@ xset +fp $HOME/.local/share/fonts/et-book
 # To avoid loading the accessibility features
 export NO_AT_BRIDGE=1
 
+# Swap the <Ctrl> and <Caps_Lock> keys
+setxkbmap -option ctrl:swapcaps
+
 xsetroot -cursor_name left_ptr
 xset s off
 xset b off
 
-/usr/bin/redshift &
+# Notifications
+dunst &
+networkd-notify &
 
-sbcl --load $HOME/.stumpwmstarter
+$HOME/.local/bin/sbcl --load $HOME/.stumpwmstarter

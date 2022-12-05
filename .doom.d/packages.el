@@ -51,10 +51,8 @@
 ;(unpin! t)
 
 
-(package! slime)
-(package! slime-company)
-
-;;(package! clang-format+)
+;; (package! slime)
+;; (package! slime-company)
 
 ;; (package! doom-snippets
 ;;   :recipe (:local-repo "~/projects/conf/doom-snippets"
@@ -63,7 +61,6 @@
 
 ;; Take control of a running chrome session, or
 ;; Firefox after enabling its `GhostText' extension.
-;;(package! atomic-chrome)
 
 (package! auto-activating-snippets
   :recipe (:host github :repo "ymarco/auto-activating-snippets"))
@@ -71,18 +68,20 @@
 (package! LaTeX-auto-activating-snippets
   :recipe (:host github :repo "tecosaur/LaTeX-auto-activating-snippets"))
 
-(package! org-modern
-  :recipe (:host github :repo "tecosaur/org-modern"))
+;; (package! org-modern
+;;   :recipe (:host github :repo "tecosaur/org-modern"))
 
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
           :files ("google-c-style.el")))
 
-(package! vue-mode)
+;; (package! vue-mode)
 
-(package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+;; (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 
-(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 (package! npm-mode)
 
-(package! tide)
+(package! uuidgen :recipe (:host github :repo "kanru/uuidgen-el"))
+
+;;(package! tide)

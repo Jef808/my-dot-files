@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com"
-       Info-additional-directory-list '("/home/jfa/.local/share/info/"))
+       info-additional-directory-list '((expand-file-name"~/.local/share/info/")))
 
 
 (add-load-path!
@@ -17,9 +17,13 @@
 (setq doom-font (font-spec :family "JetBrainsMono" :size 12 :weight 'light)
       doom-variable-pitch-font (font-spec :family "DejaVu Sans" :size 13))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Misc extra loads
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load! (expand-file-name (concat doom-user-dir "files/uuid.el")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; UI
+;; UI Components
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Don't display line number by default
@@ -47,6 +51,9 @@
 ;; lsp mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(setq! lsp-eslint-code-action-disable-rule-comment t
+       lsp-eslint-code-action-show-documentation t)
+
 ;; Disable some annoying lsp features
 (after! lsp-mode
   (setq lsp-enable-symbol-highlighting nil))
@@ -56,13 +63,13 @@
 
 ;; clangd client parameters
 (setq! clangd-args '("-j=2"
-                     "--log=error"
+                     "--log=verbose"
                      "--all-scopes-completion"
                      "--completion-parse=auto"
                      "--header-insertion-decorators"
                      "--malloc-trim"
                      "--pch-storage=memory"
-                     "--query-driver=gcc,g++,*-gcc,*-g++"
+                     "--query-driver=/usr/bin/g++"
                      "--enable-config"
                      "--background-index"
                      "--clang-tidy"
@@ -92,32 +99,19 @@
   :defer nil
   :config
   (add-to-list 'yas-snippet-dirs 'private-file-templates-dir 'append #'eq)
-  :after
-  (set-file-template! 'cmake-mode
-    (yas-reload-all)))
+  (setq! yas-default-user-snippets-dir +snippets-dir))
+;; TODO Maybe create a minor mode for this instead?
 
-;;   ;; Add the above private file-templates directory to the yas snippet dirs alist
-;;   (add-to-list 'yas-snippet-dirs 'append #'eq)
-;;   ;; CMakeLists basic template
-;;   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Javascript
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! lsp-eslint-code-action-disable-rule-comment t
-       lsp-eslint-code-action-show-documentation t
-       )
 
-(use-package! lsp-tailwindcss)
+(use-package! web-mode)
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
+;; (use-package! lsp-tailwindcss)
 
-(use-package! vue-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
-  )
-
-(use-package! lsp-volar)
-(after! lsp-volar
-  (load! (concat doom-user-dir "modules/lang/vue/config.el")))
+;;(use-package! lsp-volar)
 
 (use-package! npm-mode)
 
@@ -130,11 +124,107 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sbcl and Slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! inferior-lisp-program "sbcl")
-(after! slime
-  (load! (expand-file-name "~/quicklisp/slime-helper.el"))
-  (slime-setup '(slime-company))
-  (add-hook! 'slime-mode-hook :append '(sly-editing-mode)))
+(use-package! sly
+  :config
+  (setq sly-path (expand-file-name "~/.local/repos/sly/"))
+  ;; These two paths were still pointing to the emacs folder
+  ;; (setq sly-macrostep--path (file-name-concat sly-path "contrib/"))
+  ;; (setq sly-repl-ansi-color--path (file-name-concat sly-path "contrib/"))
+  (add-to-list 'load-path 'sly-path)
+  (require 'sly-autoloads)
+  (setq inferior-lisp-program (expand-file-name "~/.local/bin/sbcl"))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; When running emacsclient as daemon
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun client-save-kill-emacs(&optional display)
+    " This is a function that can bu used to save buffers and
+shutdown the emacs daemon. It should be called using
+emacsclient -e '(client-save-kill-emacs)'.  This function will
+check to see if there are any modified buffers, active clients
+or frame.  If so, an x window will be opened and the user will
+be prompted."
+
+  (let (new-frame modified-buffers active-clients-or-frames)
+
+    ; Check if there are modified buffers, active clients or frames.
+    (setq modified-buffers (modified-buffers-exist))
+    (setq active-clients-or-frames ( or (> (length server-clients) 1)
+					(> (length (frame-list)) 1)
+				       ))
+
+    ; Create a new frame if prompts are needed.
+    (when (or modified-buffers active-clients-or-frames)
+      (when (not (eq window-system 'x))
+	(message "Initializing x windows system.")
+	(x-initialize-window-system))
+      (when (not display) (setq display (getenv "DISPLAY")))
+      (message "Opening frame on display: %s" display)
+      (select-frame (make-frame-on-display display '((window-system . x)))))
+
+    ; Save the current frame.
+    (setq new-frame (selected-frame))
+
+
+    ; When displaying the number of clients and frames:
+    ; subtract 1 from clients (this client).
+    ; subtract 2 from frames (the frame just created and the default frame.)
+    (when (or (not active-clients-or-frames)
+	       (yes-or-no-p (format "There are currently %d clients and %d frames. Exit anyway?" (- (length server-clients) 1) (- (length (frame-list)) 2))))
+
+      ; If the user quits during the save dialog then don't exit emacs.
+      ; Still close the terminal though.
+      (let((inhibit-quit t))
+             ; Save buffers
+	(with-local-quit
+	  (save-some-buffers))
+
+	(if quit-flag
+	  (setq quit-flag nil)
+          ; Kill all remaining clients
+	  (progn
+	    (dolist (client server-clients)
+	      (server-delete-client client))
+		 ; Exit emacs
+	    (kill-emacs)))
+	))
+
+    ; If we made a frame then kill it.
+    (when (or modified-buffers active-clients-or-frames) (delete-frame new-frame))
+    )
+  )
+
+
+(defun modified-buffers-exist()
+  "This function will check to see if there are any buffers
+that have been modified.  It will return true if there are
+and nil otherwise. Buffers that have buffer-offer-save set to
+nil are ignored."
+  (let (modified-found)
+    (dolist (buffer (buffer-list))
+      (when (and (buffer-live-p buffer)
+		 (buffer-modified-p buffer)
+		 (not (buffer-base-buffer buffer))
+		 (or
+		  (buffer-file-name buffer)
+		  (progn
+		    (set-buffer buffer)
+		    (and buffer-offer-save (> (buffer-size) 0))))
+		 )
+	(setq modified-found t)
+	)
+      )
+    modified-found
+    )
+  )
+
+;; (after! slime
+;;   (load! (expand-file-name "~/quicklisp/slime-helper.el"))
+;;   (slime-setup '(slime-company))
+;;   ;; (add-hook! 'slime-mode-hook :append '(sly-editing-mode))
+;;   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; modeline
@@ -148,50 +238,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cc-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! flycheck-cppcheck-standards "--std=c++2a")
+(setq! flycheck-cppcheck-standards "--std=c++17")
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-;; (defun ++no-lsp-formatting ()
-;;   "Turn off lsp formatting."
-;;   (setq! +format-with-lsp nil))
-
+(defun ++no-lsp-formatting ()
+  "Turn off lsp formatting."
+  (setq! +format-with-lsp nil))
+(add-hook! c++-mode '++no-lsp-formatting)
 (use-package! google-c-style
   :after-call c-mode-common-hook
   :config (progn (google-set-c-style) (google-make-newline-indent)))
 
-;; (add-hook! 'c-mode-common-hook '(google-set-c-style
-;;                                  google-make-newline-indent))
-;; (use-package! clang-format+
-;;   :config
-;;   (setq! clang-format-style "file:/home/jfa/projects/.clang-format"))
-;; (set-formatter!
-;;   'clang-format
-;;   '("clang-format"
-;;     ("-assume-filename=%S" (or buffer-file-name mode-result ""))
-;;     ("-style=file:/home/jfa/projects/.clang-format"))
-;;   :modes
-;;   '((c-mode ".c")
-;;     (c++-mode ".cpp")))
-;; (add-hook! 'c-mode-common-hook :append '(++no-lsp-formatting
-;;                                          ;; clang-format+-mode
-;;                                          ))
-
 ;;(set-eglot-client! 'cc-mode clangd-args)
                                 ;;"--header-insertion-decorators=0"))
-
-
-;(after! lsp-clangd (set-lsp-priority! 'clangd 2))
-;; (defun patch-lineup-inclass nil
-;;   (defun +cc-c++-lineup-inclass (langelem)
-;;     "Indent inclass lines one level further than access modifier keywords."
-;;     (and (eq major-mode 'c++-mode)
-;;          (or (assoc 'access-label c-syntactic-context)
-;;              (save-excursion
-;;                (save-match-data
-;;                  (re-search-backward
-;;                   "\\(?:p\\(?:ublic\\|r\\(?:otected\\|ivate\\)\\)\\)"
-;;                   (c-langelem-pos langelem) t))))
-;;          '+)))
-;; (add-to-list 'c-mode-hook 'patch-lineup-inclass)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
@@ -334,14 +392,6 @@
   (advice-add #'org-roam-buffer-set-header-line-format :after #'org-roam-add-preamble-a))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Doom-dashboard
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq fancy-splash-image (concat doom-user-dir "splash.png"))
-;; Hide the menu for as minimalistic a startup screen as possible.
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs everywhere
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (after! emacs-everywhere
@@ -349,6 +399,8 @@
   ;;   bspc rule -a 'Emacs:emacs-everywhere' state=floating sticky=on
   (setq emacs-everywhere-frame-name-format "emacs-anywhere")
 
+  ;; Use local tempdir so that emacsclient has necessary permissions
+  (setq emacs-everywhere-file-dir "/home/jfa/tmp/")
   ;; The modeline is not useful to me in the popup window. It looks much nicer
   ;; to hide it.
   (remove-hook 'emacs-everywhere-init-hooks #'hide-mode-line-mode)
@@ -371,12 +423,6 @@
 ;;         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
 ;;         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; snippets
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TODO Maybe create a minor mode for this instead?
-(setq! yas-default-user-snippets-dir +snippets-dir)
-;;(yas-global-mode t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup
@@ -435,15 +481,25 @@
        modus-themes-italic-constructs t
        modus-themes-org-blocks '(gray-background))  ; tinted-background
        ;modus-themes-syntax '(alt-syntax)
-       
-;; Themes need to be reloaded for the non-default variable
-;; values to kick in
-;(load-theme modus-operandi t)
-;(load-theme modus-vivendi t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Trace emacs messages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defadvice message (before who-said-that activate)
+  "Find out who said that thing. and say so."
+  (let ((trace nil) (n 1) (frame nil))
+    (while (setq frame (backtrace-frame n))
+      (setq n     (1+ n)
+            trace (cons (cadr frame) trace)) )
+    (ad-set-arg 0 (concat "<<%S>>:\n" (ad-get-arg 0)))
+    (ad-set-args 1 (cons trace (ad-get-args 1))) ))
+
+(ad-disable-advice 'message 'before 'who-said-that)
+(ad-update 'message)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Keybindings
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; zooming in/out by controlling font size
 (map! :desc "increase font size"    "M-="           #'doom/increase-font-size
       :desc "decrease font size"    "M--"           #'doom/decrease-font-size
