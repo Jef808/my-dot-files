@@ -2,6 +2,7 @@
 
 [ -f /etc/xprofile ] && . /etc/xprofile
 [ -f ~/.xprofile ] && . ~/.xprofile
+[ -f ~/.zprofile ] && . ~/.zprofile
 
 xrdb -merge "$HOME/.Xresources"
 

@@ -1,8 +1,4 @@
 export PATH="$HOME/.local/bin:$PATH:$HOME/.emacs.d/bin"
-export PATH="$HOME/.config/rofi/scripts:$PATH"
-export MATLAB_INTEL_OVERRIDE='yes'
-
-#export NVM_DIR="$HOME/.nvm"
 
 ######################################################
 # General aliases
@@ -14,15 +10,16 @@ alias sysu='systemctl --user'
 alias pacsyu='sudo pacman -Syu'
 alias pacqdt='pacman -Qdt'
 alias -g ...='../..'
-alias cdprojects='cd ~/projects'
-alias cdlocal='cd .local'
+alias cdproj='cd ~/projects'
+alias cdloc='cd .local'
 alias pstree='pstree -hgT --color=age'
 alias pass='rofi-pass'
 alias dmenu='rofi -dmenu'
+
 alias clion='~/.local/clion-2022.1.3/bin/clion.sh'
 alias idea='~/.local/idea-IU-221.5921.22/bin/idea.sh'
+
 alias emacd='emacsclient --create-frame --no-wait'
-alias pass='rofi-pass'
 
 ######################################################
 # Suffix aliases
@@ -41,15 +38,12 @@ export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 export XDG_STATE_HOME=$HOME/.local/state
 
+
 ######################################################
-# Git clone shorthands
+# journalctl
 ######################################################
-function cloneaur() {
-  git clone https://aur.archlinux.org/$1.git
-}
-function clone() {
-  git clone https://github.com/$1/$2.git
-}
+# Wrap long lines instead of truncating
+export SYSTEMD_LESS=FRXMK journalctl
 
 ######################################################
 # Fish-like auto-suggestion
@@ -65,19 +59,12 @@ zstyle ':completion:*' file-sort modification
 ######################################################
 # Xorg config
 ######################################################
-alias sx='sx sh ~/.config/sx/sxrc'
 export XORG_CONFIG_PATH='~/.config/xorg/xorg.conf'
-
 
 ######################################################
 # Zsh functions
 ######################################################
-fpath=("$HOME/.zsh/functions/site-functions" $fpath)
-
-######################################################
-# Completion widget
-######################################################
-autoload -U compinit && compinit
+fpath=("$HOME/.zsh/Completion/" $fpath)
 
 ######################################################
 # Managing dotfiles
@@ -132,19 +119,12 @@ source ~/.zsh/fzf_completion.zsh
 source ~/.zsh/fzf_key-bindings.zsh
 alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
-######################################################
-# bat config
-######################################################
-# Use 'help cp' or 'help git branch' to get coloured help output
-alias bathelp='bat --plain --language=help'
-help() {
-  "$@" --help 2>$1 | bathelp
-}
 
 ######################################################
 # Clipboard
 ######################################################
 export CM_LAUNCHER="fzf"
+
 
 ######################################################
 # Conda setup
@@ -167,7 +147,6 @@ if [ -f "/home/jfa/mambaforge/etc/profile.d/mamba.sh" ]; then
     . "/home/jfa/mambaforge/etc/profile.d/mamba.sh"
 fi
 # <<< conda initialize <<<
-
 
 ######################################################
 # GPG
