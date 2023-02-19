@@ -4,10 +4,8 @@ Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
 
 [Service]
 Type=notify
-ExecStart=/opt/emacs/bin/emacs --fg-daemon
-
+ExecStart=/usr/bin/emacs --fg-daemon --init-directory /home/jfa/.config/emacs/
 SuccessExitStatus=15
-
 Restart=on-failure
 
 [Install]

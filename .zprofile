@@ -58,4 +58,3 @@ unset SSH_AGENT_PID
 # export GPG_TTY
 
 tmpfile_last_pacman=$(mktemp)
-

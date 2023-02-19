@@ -23,7 +23,7 @@ xset s off
 xset b off
 
 # Notifications
-dunst &
-networkd-notify &
+# dunst &
+# networkd-notify &
 
-$HOME/.local/bin/sbcl --load $HOME/.stumpwmstarter
+exec /opt/sbcl/bin/sbcl --load $HOME/.stumpwmstarter

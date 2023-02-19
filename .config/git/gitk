@@ -53,13 +53,13 @@ set linkfgcolor blue
 set circleoutlinecolor black
 set diffbgcolors {"#fff3f3" "#f0fff0"}
 set web_browser xdg-open
-set geometry(main) 1918x1006+0+44
+set geometry(main) 1918x1010+0+0
 set geometry(state) normal
 set geometry(topwidth) 1918
 set geometry(topheight) 195
-set geometry(pwsash0) "1450 1"
-set geometry(pwsash1) "1878 1"
-set geometry(botwidth) 1414
-set geometry(botheight) 806
+set geometry(pwsash0) "866 1"
+set geometry(pwsash1) "1253 1"
+set geometry(botwidth) 1263
+set geometry(botheight) 810
 set permviews {{{Command line} {} {--all --branches {--author=Jean-Francois Arbour}} {}}
 }

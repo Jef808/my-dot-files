@@ -1,0 +1,13 @@
+[Unit]
+Description=Stump Window Manager
+Documentation=http://stumpwm.github.io/
+
+[Service]
+Type=notify
+ExecStart=/opt/sbcl/bin/sbcl --load /opt/stumpwm/.stumpwmstarter
+SuccessExitStatus=15
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+BindsTo=graphical-session

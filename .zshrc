@@ -1,5 +1,7 @@
 export PATH="$HOME/.local/bin:$PATH:$HOME/.emacs.d/bin"
 
+[[ "$INSIDE_EMACS" = 'vterm' ]] && . ~/.zsh/vterm.zsh
+
 ######################################################
 # General aliases
 ######################################################
@@ -9,26 +11,25 @@ alias sudo='sudo '
 alias sysu='systemctl --user'
 alias pacsyu='sudo pacman -Syu'
 alias pacqdt='pacman -Qdt'
-alias -g ...='../..'
 alias cdproj='cd ~/projects'
 alias cdloc='cd .local'
 alias pstree='pstree -hgT --color=age'
-alias pass='rofi-pass'
 alias dmenu='rofi -dmenu'
 
 alias clion='~/.local/clion-2022.1.3/bin/clion.sh'
 alias idea='~/.local/idea-IU-221.5921.22/bin/idea.sh'
 
-alias emacd='emacsclient --create-frame --no-wait'
+#alias emacs='emacsclient --reuse-frame --no-wait'
+alias emacd='emacsclient --no-wait .'
 
 ######################################################
 # Suffix aliases
 ######################################################
-alias -s el=nano
-alias -s html=qutebrowser
-alias -s {pdf,djvu}=emacs
-alias -s {h,hpp,cpp}=nano
-alias -s md=emacs
+alias -s el=emacd
+alias -s html=chromium
+alias -s {pdf,djvu}=emacd
+alias -s {h,hpp,cpp}=emacd
+alias -s md=emacd
 
 ######################################################
 # XDG User directories
@@ -73,15 +74,20 @@ alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias configsecure='/usr/bin/git --git-dir=$HOME/.cfg-secure/ --work-tree=$HOME'
 
 ######################################################
+# Gitignore.io api
+######################################################
+function gi() { curl -sLw n https://www.toptal.com/developers/gitignore/api/$@ ;}
+
+######################################################
 # This is to make sure that the gpg-agent will
 # always communicate using the correct TTY
 ######################################################
-# unset SSH_AGENT_PID
-# if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
-#   export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-# fi
-# export GPG_TTY=`tty`
-# gpg-connect-agent updatestartuptty /bye >/dev/null
+unset SSH_AGENT_PID
+if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
+  export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+fi
+export GPG_TTY=`tty`
+gpg-connect-agent updatestartuptty /bye >/dev/null
 
 
 ######################################################
@@ -97,7 +103,7 @@ alias nano='nano --rcfile ~/.nanorc'
 ######################################################
 ## (I've been meaning to set this up for so long!!)
 ## stop at '/'s when doing 'forward/backward word'
-WORDCHARS='${WORDCHARS:s@/@}'
+export WORDCHARS=${WORDCHARS/\/}
 ## warning if file exists ('cat /dev/null > ~/.zshrc')
 setopt NO_clobber
 ## don't warn me about bg processes when exiting
@@ -117,7 +123,9 @@ setopt nocheckjobs
 ######################################################
 source ~/.zsh/fzf_completion.zsh
 source ~/.zsh/fzf_key-bindings.zsh
-alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+export FZF_DEFAULT_COMMAND='fd --type f'
+export FZF_DEFAULT_OPTS="--height=40% --preview='bat {}' --preview-window=right:60%:wrap"
+# alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
 
 ######################################################
@@ -137,8 +145,10 @@ if [ $? -eq 0 ]; then
 else
     if [ -f "/home/jfa/mambaforge/etc/profile.d/conda.sh" ]; then
         . "/home/jfa/mambaforge/etc/profile.d/conda.sh"
+        print(f"Loading profile.d/conda.sh")
     else
         export PATH="/home/jfa/mambaforge/bin:$PATH"
+        "./$PATH/"
     fi
 fi
 unset __conda_setup
@@ -146,10 +156,42 @@ unset __conda_setup
 if [ -f "/home/jfa/mambaforge/etc/profile.d/mamba.sh" ]; then
     . "/home/jfa/mambaforge/etc/profile.d/mamba.sh"
 fi
+
 # <<< conda initialize <<<
 
 ######################################################
 # GPG
 ######################################################
-GPG_TTY=$(tty)
-export GPG_TTY
+#GPG_TTY=$(tty)
+#export GPG_TTY
+
+######################################################
+# NVM
+######################################################
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+######################################################
+# Direnv support
+######################################################
+eval "$(direnv hook zsh)"
+
+######################################################
+# Virtualenv/Conda prompt extensions
+######################################################
+# Conda support
+#setopt PROMPT_SUBST
+
+function get_conda_env() {
+  echo $CONDA_DEFAULT_ENV
+}
+
+function show_conda_env () {
+    REPLY=""
+    if [ "$CONDA_DEFAULT_ENV" != "base" ]; then
+        REPLY="${CONDA_PROMPT_MODIFIER}"
+    fi
+}
+grml_theme_add_token conda-env -f show_conda_env
+zstyle ':prompt:grml:left:setup' items rc conda-env virtual-env change-root user at host path vcs percent
