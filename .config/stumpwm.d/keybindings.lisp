@@ -37,7 +37,8 @@
     (define-key m (kbd "f") "exec firefox")
     (define-key m (kbd "g") "exec chromium")
     (define-key m (kbd "e") "exec emacs --init-directory ~/.config/emacs")
-    (define-key m (kbd "d") "exec emacsclient --create-frame --no-wait")
+    (define-key m (kbd "d") "exec emacsclient --no-wait")
+    (define-key m (kbd "v") "exec codium")
     (define-key m (kbd "c") "exec alacritty")
     (define-key m (kbd "r") "exec rofi -show run -font 'Fira Code -18'")
     m
