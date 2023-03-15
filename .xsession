@@ -16,14 +16,14 @@ xset +fp $HOME/.local/share/fonts/et-book
 export NO_AT_BRIDGE=1
 
 # Swap the <Ctrl> and <Caps_Lock> keys
-setxkbmap -option ctrl:swapcaps
+setxkbmap -layout us,ca -option grp:win_space_toggle -option ctrl:swapcaps
 
 xsetroot -cursor_name left_ptr
 xset s off
 xset b off
 
 # Notifications
-# dunst &
+dunst &
 # networkd-notify &
 
 exec /opt/sbcl/bin/sbcl --load $HOME/.stumpwmstarter
