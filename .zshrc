@@ -19,6 +19,8 @@ alias dmenu='rofi -dmenu'
 alias clion='~/.local/clion-2022.1.3/bin/clion.sh'
 alias idea='~/.local/idea-IU-221.5921.22/bin/idea.sh'
 
+alias godot='godot --display-driver x11 --rendering-driver opengl3'
+
 #alias emacs='emacsclient --reuse-frame --no-wait'
 alias emacd='emacsclient --no-wait .'
 
@@ -195,3 +197,23 @@ function show_conda_env () {
 }
 grml_theme_add_token conda-env -f show_conda_env
 zstyle ':prompt:grml:left:setup' items rc conda-env virtual-env change-root user at host path vcs percent
+
+########################################################
+# Tab completion for the dotnet CLI
+#######################################################
+_dotnet_zsh_complete()
+{
+  local completions=("$(dotnet complete "$words")")
+
+  # If the completion list is empty, just continue with filename selection
+  if [ -z "$completions" ]
+  then
+    _arguments '*::arguments: _normal'
+    return
+  fi
+
+  # This is not a variable assignment, don't remove spaces!
+  _values = "${(ps:\n:)completions}"
+}
+
+compdef _dotnet_zsh_complete dotnet
