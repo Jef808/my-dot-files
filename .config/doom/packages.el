@@ -7,6 +7,11 @@
  :recipe (:host github :repo "google/styleguide"
           :files ("google-c-style.el")))
 
+(package! vue-mode)
+(package! vue-html-mode)
+(package! prettier-js)
+(package! add-node-modules-path)
+
 (package! dap-mode :disable t)
 
 (package! ob-napkin)
@@ -15,6 +20,7 @@
 (package! verb)
 
 (package! conda)
+(package! nvm)
 
 (package! info-colors)
 (package! auto-yasnippet)

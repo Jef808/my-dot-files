@@ -204,7 +204,7 @@ schemes:
   # Colors (Dark)
   one_dark: &dark
     primary:
-      background: "#282c34"
+      background: "#1d2127"
       foreground: "#bbc2cf"
     cursor:
       text: CellBackground

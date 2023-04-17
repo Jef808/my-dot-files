@@ -21,6 +21,8 @@
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
 
+(setq envrc-direnv-executable "/usr/bin/direnv")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Using the Unix password store
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -164,6 +166,16 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
                  (restclient . t)
                  (python . t)
                  (C++ . t))))
+
+;; diary config
+(setq! diary-file (expand-file-name "diary" org-directory)
+       diary-comment-start "###")
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+
+;; org-agenda
+(setq! org-agenda-include-diary t)
+
+
 ;; (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
 ;; (setq org-roam-dailies-directory "daily/")
 ;; (setq org-roam-dailies-capture-templates
@@ -189,6 +201,9 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   :definition  #'anaconda-mode-find-definitions
   :references #'anaconda-mode-find-references
   :documentation #'anaconda-mode-show-doc)
+(use-package! conda
+  :config
+  (conda-env-activate "base"))
 
 ;; Verb
 (use-package! verb
@@ -209,7 +224,8 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((verb . t)))
+   '((verb . t)
+     (typescript . t)))
 
   (advice-add 'verb--request-spec-post-process :around #'verb--request-spec-post-process-a)
 
@@ -236,7 +252,43 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;; Javascript
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
+(use-package! nvm
+  :after +Javascript-Npm)
 
+(use-package! web-mode
+  :mode "\\.vue\\'"
+  :hook (web-mode . prettier-js-mode)
+  :config
+  (setq! web-mode-markup-indent-offset 4
+         web-mode-code-indent-offset 2
+         prettier-js-args '("--parser vue"
+                            "--trailing-comma" "all"
+                            "--bracket-spacing" "false"))
+  (add-hook 'web-mode-hook #'lsp))
+
+(use-package! flycheck
+  :hook (flycheck . add-node-modules-path)
+  :config
+  (setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'vue-mode))
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+(defun vue-mode-init-hook ()
+  (set-face-background 'mmm-default-submode-face nil))
+
+;; (use-package! vue-mode
+;;   :hook (vue-mode . prettier-js-mode)
+;;   :mode "\\.vue\\'"
+;;   :config
+;;   (add-hook 'vue-mode-hook #'lsp)
+;;   (add-hook 'vue-mode-hook 'vue-mode-init-hook))
+
+;; (use-package! prettier-js
+;;   :config
+;;   (add-hook! 'web-mode-hook #'prettier-js-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flycheck config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

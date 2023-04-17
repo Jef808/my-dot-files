@@ -1,5 +1,8 @@
 # -*- mode: gitignore; -*-
 
+### Ignore log files ###
+**/*.log*
+
 ### Linux ###
 *~
 

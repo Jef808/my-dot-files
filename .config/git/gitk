@@ -1,11 +1,11 @@
-set mainfont {{jetbrains mono} 12}
-set textfont {{jetbrains mono nl medium} 12}
+set mainfont {{jetbrains mono} 8}
+set textfont {{jetbrains mono nl medium} 8}
 set uifont {{jetbrains mono medium} 12}
 set tabstop 8
 set findmergefiles 0
 set maxgraphpct 50
 set maxwidth 16
-set cmitmode tree
+set cmitmode patch
 set wrapcomment none
 set autoselect 1
 set autosellen 40
@@ -53,13 +53,13 @@ set linkfgcolor blue
 set circleoutlinecolor black
 set diffbgcolors {"#fff3f3" "#f0fff0"}
 set web_browser xdg-open
-set geometry(main) 1278x644+237+1120
+set geometry(main) 1918x1004+0+0
 set geometry(state) normal
-set geometry(topwidth) 1278
-set geometry(topheight) 195
-set geometry(pwsash0) "865 1"
-set geometry(pwsash1) "1252 1"
-set geometry(botwidth) 1262
-set geometry(botheight) 444
+set geometry(topwidth) 1918
+set geometry(topheight) 319
+set geometry(pwsash0) "714 1"
+set geometry(pwsash1) "1009 1"
+set geometry(botwidth) 805
+set geometry(botheight) 680
 set permviews {{{Command line} {} {--all --branches {--author=Jean-Francois Arbour}} {}}
 }

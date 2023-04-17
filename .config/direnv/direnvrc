@@ -1,4 +1,4 @@
-# -*- mode: sh; -*-
+# -*- mode: sh -*-
 
 # --- NVM --- #
 use_nvm() {
@@ -10,6 +10,7 @@ use_nvm() {
     nvm use $node_version
   fi
 }
+
 # --- DIRENV CACHE DIR --- #
 : ${XDG_CACHE_HOME:=$HOME/.cache}
 declare -A direnv_layout_dirs
