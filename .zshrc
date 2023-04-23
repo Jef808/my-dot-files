@@ -1,5 +1,5 @@
 # profile startup time
-zmodload zsh/zprof
+#zmodload zsh/zprof
 
 ######################################################
 # Local variables
@@ -130,27 +130,9 @@ eval "$(direnv hook zsh)"
 ########################################################
 # Conda
 #######################################################
-. $zsh_dir/condarc.zsh
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-# __conda_setup="$('/home/jfa/mambaforge/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/home/jfa/mambaforge/etc/profile.d/conda.sh" ]; then
-#         . "/home/jfa/mambaforge/etc/profile.d/conda.sh"
-#         print(f"Loading profile.d/conda.sh")
-#     else
-#         export PATH="/home/jfa/mambaforge/bin:$PATH"
-#         "./$PATH/"
-#     fi
-# fi
-# unset __conda_setup
-
-# if [ -f "/home/jfa/mambaforge/etc/profile.d/mamba.sh" ]; then
-#     . "/home/jfa/mambaforge/etc/profile.d/mamba.sh"
-# fi
+source $zsh_dir/condarc.zsh
 
 # When profiling startup time
-zprof
+#zprof
+
+source /home/jfa/.config/broot/launcher/bash/br

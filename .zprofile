@@ -1,3 +1,4 @@
+export EDITOR=emacsclient
 export NO_AT_BRIDGE=1
 
 ######################################################
@@ -17,7 +18,7 @@ export DOOMDIR=$HOME/.config/doom
 ######################################################
 # Path
 ######################################################
-export PATH=$HOME/.local/bin:$DOOMDIR/bin:$PATH
+export PATH=$HOME/.local/bin:$EMACSDIR/bin:$PATH
 
 ######################################################
 # This is to make sure that the gpg-agent will

@@ -35,10 +35,9 @@
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "b") "exec qutebrowser")
     (define-key m (kbd "f") "exec firefox")
-    (define-key m (kbd "g") "exec google-chrome-stable")
-    (define-key m (kbd "e") "exec emacs --init-directory ~/.config/emacs")
-    (define-key m (kbd "d") "exec emacsclient --display=:0.0")
-    (define-key m (kbd "v") "exec codium")
+    (define-key m (kbd "g") "exec google-chrome-stable --remote-debugging-port=9222")
+    (define-key m (kbd "e") "exec emacsclient -c")
+    ;(define-key m (kbd "d") "exec emacsclient")
     (define-key m (kbd "c") "exec alacritty")
     (define-key m (kbd "r") "exec rofi -show run -font 'Fira Code -18'")
     m

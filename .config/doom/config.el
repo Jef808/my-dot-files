@@ -8,9 +8,7 @@
 ;; (setq! user-formatting-dir (file-name-as-directory (expand-file-name "editor/formatting" doom-user-dir))
 ;;        user-file-templates-dir (file-name-as-directory (expand-file-name "editor/file_templates" doom-user-dir))
 ;;        user-snippets-dir (file-name-as-directory (expand-file-name "snippets" doom-user-dir)))
-(setq Info-additional-directory-list '(("~/.local/share/info")))
-;; (add-load-path! user-formatting-dir user-file-templates-dir user-snippets-dir)
-
+(setq local-repository-dir (expand-file-name (file-name-as-directory "local-repository/") doom-user-dir))
 
 (setq global-font-lock-mode t)
 
@@ -22,6 +20,8 @@
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
 
 (setq envrc-direnv-executable "/usr/bin/direnv")
+
+(setq inhibit-x-resources nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Using the Unix password store
@@ -395,8 +395,10 @@ Return nil if on a link url, markup, html, or references."
                         return t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Yasnippets
+;; chrome.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun load-chrome-debug ()
+        (load! (expand-file-name "chrome/chrome.el" local-repository-dir)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Docstring generator using abo-abo's auto-yas-snippets
@@ -433,6 +435,11 @@ The point should be on the top-level function name."
               "\n")
              (incf ord)))
       (aya-expand))))
+
+(use-package! gptel
+  :config
+  (setq! gptel-api-key "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"))
+
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
