@@ -11,4 +11,3 @@ alias rnano='sudo nano'
 export CDPATH='.:~/'
 
 PS1='[\u \W]\$ '
-

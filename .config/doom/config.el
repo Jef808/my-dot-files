@@ -17,7 +17,7 @@
       next-screen-context-lines 4)
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 
 (setq envrc-direnv-executable "/usr/bin/direnv")
 
@@ -40,25 +40,7 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   (cond
    ((string-equal system-type "gnu/linux")
     (shell-command "uuidgen" t))
-   (t
-    (let ((myStr (md5 (format "%s%s%s%s%s%s%s%s%s%s"
-                              (user-uid)
-                              (emacs-pid)
-                              (system-name)
-                              (user-full-name)
-                              (current-time)
-                              (emacs-uptime)
-                              (garbage-collect)
-                              (buffer-string)
-                              (random)
-                              (recent-keys)))))
-      (insert (format "%s-%s-4%s-%s%s-%s"
-                      (substring myStr 0 8)
-                      (substring myStr 8 12)
-                      (substring myStr 13 16)
-                      (format "%x" (+ 8 (random 4)))
-                      (substring myStr 17 20)
-                      (substring myStr 20 32)))))))
+   ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -125,13 +107,6 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ; (keymap-set vertico-map "M-o" #'consult-multi-occur)
 
 
-;; Give this a try?
-;; (use-package orderless
-;;   :init
-;;   (setq completion-styles '(orderless basic)
-;;         completion-category-defaults nil
-;;         completion-categry-overrides '((file (styles partial-completion)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -166,6 +141,12 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
                  (restclient . t)
                  (python . t)
                  (C++ . t))))
+
+(setq! org-latex-listings 'minted
+       org-latex-packages-alist '(("" "minted"))
+       org-latex-pdf-process
+       '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 ;; diary config
 (setq! diary-file (expand-file-name "diary" org-directory)
@@ -249,28 +230,45 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 
 (add-hook! c-mode-common #'google-set-c-style)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Javascript
+;; Web development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
 (use-package! nvm
   :after +Javascript-Npm)
 
-(use-package! web-mode
-  :mode "\\.vue\\'"
-  :hook (web-mode . prettier-js-mode)
-  :config
-  (setq! web-mode-markup-indent-offset 4
-         web-mode-code-indent-offset 2
-         prettier-js-args '("--parser vue"
-                            "--trailing-comma" "all"
-                            "--bracket-spacing" "false"))
-  (add-hook 'web-mode-hook #'lsp))
+;; (after! esl)
 
+(use-package! web-mode
+  :hook (web-mode . my-web-mode-hook)
+  :config
+  ;;(add-hook 'web-mode-hook #'lsp)
+  )
+
+(defun my-web-mode-hook ()
+  ;; add hook for web mode
+  (prettier-js-mode)
+  (lsp))
+
+(use-package! vue-mode
+  :mode "\\.vue\\'"
+  :hook (vue-mode . my-vue-mode-hook)
+  :config
+  (add-hook 'vue-mode-hook #'lsp))
+
+(defun my-vue-mode-hook ()
+  ;; configure web-mode for vue files
+  (progn
+    (setq prettier-js-args '("--parser vue"
+                             "--trailing-comma" "all"
+                             "--bracket-spacing" "false"))
+    (prettier-js-mode)))
+
+;; flycheck
 (use-package! flycheck
   :hook (flycheck . add-node-modules-path)
   :config
   (setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
+                (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   (flycheck-add-mode 'javascript-eslint 'vue-mode))
 
@@ -279,12 +277,12 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 (defun vue-mode-init-hook ()
   (set-face-background 'mmm-default-submode-face nil))
 
-;; (use-package! vue-mode
-;;   :hook (vue-mode . prettier-js-mode)
-;;   :mode "\\.vue\\'"
-;;   :config
-;;   (add-hook 'vue-mode-hook #'lsp)
-;;   (add-hook 'vue-mode-hook 'vue-mode-init-hook))
+(use-package! vue-mode
+  :hook (vue-mode . prettier-js-mode)
+  :mode "\\.vue\\'"
+  :config
+  (add-hook 'vue-mode-hook #'lsp)
+  (add-hook 'vue-mode-hook 'vue-mode-init-hook))
 
 ;; (use-package! prettier-js
 ;;   :config
@@ -436,10 +434,11 @@ The point should be on the top-level function name."
              (incf ord)))
       (aya-expand))))
 
-(use-package! gptel
+;; ActivityWatch
+(use-package! activity-watch-mode
+  :commands global-activity-watch-mode
   :config
-  (setq! gptel-api-key "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"))
-
+  (global-activity-watch-mode))
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.

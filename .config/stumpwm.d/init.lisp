@@ -67,8 +67,7 @@
    :name
    (uiop:strcat "Waiting for '" command "'")))
 
-
- (defun notify-send (msg &rest args)
+(defun notify-send (msg &rest args)
   (run (format nil "notify-send ~{~a~^ ~}" (cons msg args))))
 
 (defvar *slynk-thread* nil)

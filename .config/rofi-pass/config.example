@@ -16,8 +16,8 @@ _pwgen () {
 # qrencode is needed to generate the image and a viewer
 # that can read from pipes. Known viewers to work are feh and display
 _image_viewer () {
-#    feh -
-    display
+    feh -
+#    display
 }
 
 # xdotool needs the keyboard layout to be set using setxkbmap
@@ -61,7 +61,7 @@ default_autotype='user :tab pass'
 
 # color of the help messages
 # leave empty for autodetection
-help_color="#4872FF"
+# help_color="#4872FF"
 
 # Clipboard settings
 # Possible options: primary, clipboard, both

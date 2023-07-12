@@ -2,9 +2,14 @@
 #zmodload zsh/zprof
 
 ######################################################
+# Global variables
+######################################################
+export JAVA_HOME=/usr/lib/jvm/default
+
+######################################################
 # Local variables
 ######################################################
-zsh_dir=$HOME/.zsh
+local zsh_dir=$HOME/.zsh
 
 ######################################################
 # Zsh options
@@ -23,12 +28,19 @@ alias pacqdt='pacman -Qdt'
 alias pstree='pstree -hgT --color=age'
 alias dmenu='rofi -dmenu'
 alias emacd='emacsclient --create-frame --display=:0.0'
+alias google='google-chrome-unstable --remote-debugging-port=9222'
+
+######################################################
+# Alacritty color themes
+######################################################
+export ALACRITTY_COLOR_SCHEME_LIGHT='solarized_light.yaml'
+export ALACRITTY_COLOR_SCHEME_DARK='one_dark.yaml'
 
 ######################################################
 # Suffix aliases
 ######################################################
 alias -s el=emacd
-alias -s html=chromium
+alias -s html=google-chrome-stable
 alias -s {pdf,djvu}=emacd
 alias -s {h,hpp,cpp}=emacd
 alias -s md=emacd
@@ -39,15 +51,14 @@ alias -s md=emacd
 # Wrap long lines instead of truncating
 export SYSTEMD_LESS=FRXMK journalctl
 
-######################################################
+#####################################################
 # Fish-like auto-suggestion
 ######################################################
 source $zsh_dir/zsh-autosuggestions.zsh
 
 ######################################################
-# Zsh functions
+# Zsh completions
 ######################################################
-fpath=($zsh_dir/Completion/ $fpath)
 
 ######################################################
 # Managing dotfiles
@@ -88,7 +99,6 @@ autoload -Uz add-zsh-hook
 ######################################################
 # fzf configuration
 ######################################################
-source $zsh_dir/fzf_completion.zsh
 source $zsh_dir/fzf_key-bindings.zsh
 export FZF_DEFAULT_COMMAND='fd --type f'
 export FZF_DEFAULT_OPTS="--height=40% --preview='bat {}' --preview-window=right:60%:wrap"
@@ -132,7 +142,15 @@ eval "$(direnv hook zsh)"
 #######################################################
 source $zsh_dir/condarc.zsh
 
+#
 # When profiling startup time
 #zprof
+#
 
 source /home/jfa/.config/broot/launcher/bash/br
+
+PATH="/home/jfa/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/jfa/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/jfa/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/jfa/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/jfa/perl5"; export PERL_MM_OPT;

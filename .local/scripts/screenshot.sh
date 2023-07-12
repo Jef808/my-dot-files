@@ -1,6 +1,13 @@
 #!/usr/bin/env sh
 
-arg="$1"
-win_name=$(xwininfo -tree -root | grep "${arg}" | awk -F\" '{print $2}')
+xwd -out $HOME/ss.xwd
 
-xwd -name "${win_name}" -out /tmp/"${win_name}".xwd #| convert - ~/tmp/$win_name.jpg
+while true; do
+    if [ -f "${HOME}/ss.xwd" ]; then
+        convert $HOME/ss.xwd $HOME/ss.png
+        rm $HOME/ss.xwd
+        break
+    else
+        sleep 1
+    fi
+done

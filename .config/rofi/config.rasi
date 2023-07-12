@@ -8,16 +8,16 @@
 
 configuration {
 	/*---------- General setting ----------*/
-	modi: "drun,run,filebrowser,window";
+	modi: "drun,run,filebrowser,window,keys,ssh,windowcd";
 	case-sensitive: false;
 	cycle: true;
 	filter: "";
 	scroll-method: 0;
 	normalize-match: true;
 	show-icons: true;
-	icon-theme: "Papirus";
+	icon-theme: "hicolor";
 /*	cache-dir: ;*/
-	steal-focus: false;
+	steal-focus: true;
 /*	dpi: -1;*/
 
 	/*---------- Matching setting ----------*/
@@ -34,7 +34,7 @@ configuration {
 	drun-categories: "";
 	drun-match-fields: "name,generic,exec,categories,keywords";
 	drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
-	drun-show-actions: false;
+	drun-show-actions: true;
 	drun-url-launcher: "xdg-open";
 	drun-use-desktop-cache: false;
 	drun-reload-desktop-cache: false;
@@ -83,8 +83,8 @@ configuration {
 
 	/*---------- Misc setting ----------*/
 	terminal: "rofi-sensible-terminal";
-	font: "Fira Code 22";
-	sort: false;
+	font: "Fira Code 18";
+	sort: true;
 	threads: 0;
 	click-to-exit: true;
 /*	ignored-prefixes: "";*/
@@ -104,10 +104,9 @@ configuration {
     }
 
 	/*---------- Keybindings ----------*/
-/*
-	kb-primary-paste: "Control+V,Shift+Insert";
-	kb-secondary-paste: "Control+v,Insert";
-	kb-clear-line: "Control+w";
+	kb-primary-paste: "Control+y,Shift+Insert";
+	kb-secondary-paste: "Control+V,Insert";
+	kb-clear-line: "Alt+w";
 	kb-move-front: "Control+a";
 	kb-move-end: "Control+e";
 	kb-move-word-back: "Alt+b,Control+Left";
@@ -115,7 +114,7 @@ configuration {
 	kb-move-char-back: "Left,Control+b";
 	kb-move-char-forward: "Right,Control+f";
 	kb-remove-word-back: "Control+Alt+h,Control+BackSpace";
-	kb-remove-word-forward: "Control+Alt+d";
+	kb-remove-word-forward: "Alt+d";
 	kb-remove-char-forward: "Delete,Control+d";
 	kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";
 	kb-remove-to-eol: "Control+k";
@@ -125,15 +124,15 @@ configuration {
 	kb-accept-custom-alt: "Control+Shift+Return";
 	kb-accept-alt: "Shift+Return";
 	kb-delete-entry: "Shift+Delete";
-	kb-mode-next: "Shift+Right,Control+Tab";
-	kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
-	kb-mode-complete: "Control+l";
+	kb-mode-next: "Shift+Right";
+	kb-mode-previous: "Shift+Left";
+	kb-mode-complete: "Alt+backslash";
 	kb-row-left: "Control+Page_Up";
 	kb-row-right: "Control+Page_Down";
 	kb-row-down: "Down,Control+n";
-	kb-page-prev: "Page_Up";
-	kb-page-next: "Page_Down";
-	kb-row-first: "Home,KP_Home";
+	kb-page-prev: "Alt+v,Page_Up";
+	kb-page-next: "Control+v,Page_Down";
+	kb-row-first: "Alt+Home,KP_Home";
 	kb-row-last: "End,KP_End";
 	kb-row-select: "Control+space";
 	kb-screenshot: "Alt+S";
@@ -177,5 +176,4 @@ configuration {
 	me-select-entry: "MousePrimary";
 	me-accept-entry: "MouseDPrimary";
 	me-accept-custom: "Control+MouseDPrimary";
-*/
 }

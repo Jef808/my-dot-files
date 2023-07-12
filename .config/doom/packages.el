@@ -25,6 +25,8 @@
 (package! info-colors)
 (package! auto-yasnippet)
 
+(package! log4e)
+
 ;(package! doxymacs)
 
 ;; Until doom supports Emacs 29
@@ -37,6 +39,14 @@
           :recipe (:host github :repo "magit/with-editor"))
 
 (package! gptel)
+
+;; ActivityWatch collector
+(package! activity-watch-mode)
+
+;; For writing texts with Jira markup syntax
+(package! jira-markup-mode)
+
+
 
 
 ;; To install a package with Doom you must declare them here and run 'doom sync'

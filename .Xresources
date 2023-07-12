@@ -27,10 +27,10 @@
 #define cyan #0184bc
 #define dark_cyan #005478
 
-! XTerm*background: dark_bg
-! XTerm*foreground: dark_fg
-*background: light_bg
-*foreground: light_fg
+XTerm*background: dark_bg
+XTerm*foreground: dark_fg
+! *background: light_bg
+! *foreground: light_fg
 
 ! XTerm*color0: dark_bg
 *color0: light_bg

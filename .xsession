@@ -26,4 +26,4 @@ xset b off
 dunst &
 # networkd-notify &
 
-exec /opt/sbcl/bin/sbcl --load $HOME/.stumpwmstarter
+exec $HOME/.local/opt/sbcl/bin/sbcl --load $HOME/.stumpwmstarter

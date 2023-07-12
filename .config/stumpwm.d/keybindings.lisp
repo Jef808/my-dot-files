@@ -3,11 +3,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top keybinds        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Those 
 ;; Emacs Everywhere
 (defcommand emacs-everywhere () ()
   (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
-   (define-key *root-map* (kbd "E") "emacs-everywhere")
+(define-key *root-map* (kbd "E") "emacs-everywhere")
+
+;; Execute shell commands using rofi
+(define-key *root-map* (kbd "!") "exec rofi -show run -font 'Fira Code -18'")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Leader Map keybindings ;;
@@ -31,15 +33,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Launch map             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *exec-emacs* "exec emacsclient --create-frame --display=:0.0")
+(defvar *exec-chrome* "exec google-chrome-stable")
+(defvar *exec-rofi* "exec rofi -show drun -font 'Fira Code -18'")
+(defvar *exec-rofipass* "exec rofi-pass -show drun -font 'Fira Code -18'")
+
 (defvar *launch-map*
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "b") "exec qutebrowser")
     (define-key m (kbd "f") "exec firefox")
-    (define-key m (kbd "g") "exec google-chrome-stable --remote-debugging-port=9222")
-    (define-key m (kbd "e") "exec emacsclient -c")
-    ;(define-key m (kbd "d") "exec emacsclient")
+    (define-key m (kbd "g") *exec-chrome*)
+    (define-key m (kbd "e") *exec-emacs*)
     (define-key m (kbd "c") "exec alacritty")
-    (define-key m (kbd "r") "exec rofi -show run -font 'Fira Code -18'")
+    (define-key m (kbd "r") *exec-rofi*)
+    (define-key m (kbd "p") *exec-rofipass*)
     m
   ))
 (define-key *root-map* (kbd "SPC") '*launch-map*)
@@ -60,7 +67,7 @@
 ;; Redefine keys to behave emacs-like when focused window
 ;; has class firefox or Chrome (redirects firefox's keys)
 (define-remapped-keys
-  '(("firefox|Google-chrome"
+    '(("firefox|Google-chrome"
      ("C-n"   . "Down")
      ("C-p"   . "Up")
      ("C-f"   . "Right")
