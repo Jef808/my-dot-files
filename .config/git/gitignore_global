@@ -70,3 +70,9 @@ flycheck_*.el
 
 # network security
 /network-security.data
+
+# nvm
+.nvmrc
+
+# direnv
+.envrc

@@ -1,6 +1,8 @@
 # profile startup time
 #zmodload zsh/zprof
 
+export PATH=$HOME/.local/bin:$PATH
+
 ######################################################
 # Global variables
 ######################################################
@@ -23,12 +25,13 @@ source $zsh_dir/options.zsh
 # strings with `sudo'
 alias sudo='sudo '
 alias sysu='systemctl --user'
+alias pacman='pacman --color=always'
 alias pacsyu='sudo pacman -Syu'
 alias pacqdt='pacman -Qdt'
 alias pstree='pstree -hgT --color=age'
 alias dmenu='rofi -dmenu'
 alias emacd='emacsclient --create-frame --display=:0.0'
-alias google='google-chrome-unstable --remote-debugging-port=9222'
+alias google='google-chrome-stable --remote-debugging-port=9222'
 
 ######################################################
 # Alacritty color themes
@@ -92,8 +95,8 @@ setopt nocheckjobs
 ######################################################
 # Histdb configuration
 ######################################################
-source $zsh_dir/zsh-histdb/sqlite-history.zsh
-autoload -Uz add-zsh-hook
+#source $zsh_dir/zsh-histdb/sqlite-history.zsh
+#autoload -Uz add-zsh-hook
 # bindkey '^r' _histdb-isearch
 
 ######################################################
@@ -128,11 +131,6 @@ eval "$(direnv hook zsh)"
 #source ~/.zsh/dotnetrc.zsh
 
 ########################################################
-# Syntax highlighting in the prompt
-#######################################################
-# source '/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
-
-########################################################
 # Emacs vterm integration
 #######################################################
 [[ "$INSIDE_EMACS" = 'vterm' ]] && source '~/.zsh/vterm.zsh'
@@ -146,11 +144,5 @@ source $zsh_dir/condarc.zsh
 # When profiling startup time
 #zprof
 #
-
-source /home/jfa/.config/broot/launcher/bash/br
-
-PATH="/home/jfa/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/home/jfa/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/jfa/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/jfa/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/jfa/perl5"; export PERL_MM_OPT;
+source /usr/share/nvm/init-nvm.sh
+export NODE_VERSIONS=$HOME/.config/nvm/versions/node

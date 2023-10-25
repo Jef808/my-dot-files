@@ -50,7 +50,8 @@ xset b off
 # export SSH_ASKPASS=ssh-askpass
 
 # redshift &
-exec sbcl --load $HOME/.stumpwmstarter
+# exec sbcl --load $HOME/.stumpwmstarter
+exec /usr/bin/stumpwm
 # exec /usr/local/bin/stumpwm
 # /usr/local/bin/stumpwm
 

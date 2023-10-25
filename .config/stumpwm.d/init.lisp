@@ -5,15 +5,15 @@
 (in-package :stumpwm)
 
 ;; modules
-(load-module "alert-me")
+;;(load-module "alert-me")
 ;(load-module "notify")
 ;(notify:notify-server-toggle)
 
-(defvar *config-dir* "/home/jfa/.config/")
+(defvar *config-dir* "/home/steve/.config/")
 
-(setf *data-dir* "/home/jfa/.local/share/stumpwm/")
+(setf *data-dir* "/home/steve/.local/share/stumpwm/")
 
-(load "/home/jfa/.config/stumpwm.d/keybindings.lisp")
+(load "/home/steve/.config/stumpwm.d/keybindings.lisp")
 
 ;; Modeline formatting3
 (setf *mode-line-pad-x* 5
@@ -40,7 +40,7 @@
 
 ;; Screen layouts
 (defcommand hdmi-on () ()
-  (run-shell-command "hdmi-on"))
+  (run-shell-command "~/.screenlayout/hdmi-on"))
 (defcommand hdmi-off () ()
   (run-shell-command "hdmi-off"))
 (defcommand mishascreen-on () ()
@@ -57,30 +57,32 @@
 (define-key *root-map* (kbd "E") "emacs-everywhere")
 
 
-(require :uiop)
-(require :slynk)
-(defun run (command)
-  (sb-thread:make-thread
-   (lambda ()
-     (let ((exit-code (uiop:wait-process (uiop:launch-program command))))
-       (zerop exit-code)))
-   :name
-   (uiop:strcat "Waiting for '" command "'")))
+;(require :uiop)
+;(require :slynk)
+;(defun run (command)
+;  (sb-thread:make-thread
+;   (lambda ()
+;     (let ((exit-code (uiop:wait-process (uiop:launch-program command))))
+;       (zerop exit-code)))
+;   :name
+;   (uiop:strcat "Waiting for '" command "'")))
 
-(defun notify-send (msg &rest args)
-  (run (format nil "notify-send ~{~a~^ ~}" (cons msg args))))
+;; (defun notify-send (msg &rest args)
+;;   (run (format nil "notify-send ~{~a~^ ~}" (cons msg args))))
 
-(defvar *slynk-thread* nil)
-(defcommand slynk-start (port) ((:number "Port number: "))
-  ;; Start a slynk server manually from the parent sbcl process.
-  ;; Can then connect to it using `sly-connect' in emacs.
-  (setq *slynkthread* (sb-thread:make-thread
-                       (lambda ()
-                         (and
-                          (notify-send (format nil "Slynk server running at port ~d" port))
-                          (slynk:create-server :port port :dont-close t)
-                           ))))
-  nil)
+;; (defvar *slynk-default-port* 4005)
+;; (defcommand slynk-start (port) ((:number "Port number: "))
+;;   Start a slynk server manually from the parent sbcl process.
+;;   Can then connect to it using `sly-connect' in emacs.
+;;  (setq *slynkthread* (sb-thread:make-thread
+;;                       (lambda ()
+;;                          (slynk:create-server :port (or port *slynk-default-port*) :dont-close t)
+;;                           )))
+;;   nil)
 
-(defcommand slynk-stop () ((:string "Port number: "))
-  ())
+(run-shell-command "dunst")
+(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
+
+
+;(defcommand slynk-stop () ((:string "Port number: "))
+;  ())

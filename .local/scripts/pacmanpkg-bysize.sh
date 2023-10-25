@@ -2,4 +2,5 @@
 
 # Display the installed packages managed by pacman, sorted
 # in reverse size order.
-expac "%n %m" -l'\n' -Q -H M $(pacman -Qq) | sort -rhk 2 | bat
+
+expac "%n %m" -Q -H M | sort -rhk 2 | awk '{printf "%-32s    %s %s\n", $1, $2, $3}'

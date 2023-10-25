@@ -169,13 +169,13 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! python-interpreter "~/mambaforge/bin/python"
-       lsp-ansible-python-interpreter-path "~/mambaforge/bin/python"
-       lsp-python-ms-extra-paths '(("~/mambaforge/bin/python"))
-       python-shell-exec-path "~/mambaforge/bin/"
-       flycheck-python-flake8-executable "~/mambaforge/bin/flake8"
-       lsp-clients-pylsp-library-directories "~/mambaforge/"
-       pyvenv-default-virtual-env-name "~/mambaforge/env")
+(setq! python-interpreter "/opt/miniconda3/bin/python"
+       lsp-ansible-python-interpreter-path "/opt/miniconda3/bin/python"
+       lsp-python-ms-extra-paths '(("/opt/miniconda3/bin/python"))
+       python-shell-exec-path "/opt/miniconda3/bin/"
+       flycheck-python-flake8-executable "/opt/miniconda3/bin/flake8"
+       lsp-clients-pylsp-library-directories "/opt/miniconda3/"
+       pyvenv-default-virtual-env-name "/opt/miniconda3/env")
 (setenv "WORKON_HOME" (concat (getenv "CONDA_PREFIX") "/envs"))
 (pyvenv-mode t)
 (set-lookup-handlers! 'python-mode
@@ -184,6 +184,8 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   :documentation #'anaconda-mode-show-doc)
 (use-package! conda
   :config
+  (setq conda-anaconda-home "/opt/miniconda3")
+  (push "/opt/miniconda3" conda-home-candidates)
   (conda-env-activate "base"))
 
 ;; Verb
@@ -302,8 +304,8 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! doom-font (font-spec :family "Fira Code" :size 14 :weight 'light)
-       doom-variable-pitch-font (font-spec :family "Fira Sans" :size 14 :weight 'light)
+(setq! doom-font (font-spec :family "JetBrains Mono" :size 14 :weight 'light)
+       doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14 :weight 'light)
        doom-theme 'doom-one)
 
 ;; Files (from https://github.com/elken/doom#marginalia)

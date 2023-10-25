@@ -5,19 +5,19 @@
 (in-package :stumpwm)
 
 ;; modules
-;(load-module "alert-me")
+;;(load-module "alert-me")
 ;(load-module "notify")
 ;(notify:notify-server-toggle)
 
-(setf *config-dir* (file-name-as-directory "/home/jfa/.config/stumpwm.d"))
-(setf *data-dir* (file-name-as-directory "/home/jfa/.local/share/stumpwm"))
+(defvar *config-dir* "/home/steve/.config/")
 
-;; ;; KEYBINDINGS
-(load (concat *config-dir* "keybindings.lisp"))
+(setf *data-dir* "/home/steve/.local/share/stumpwm/")
 
-;; Modeline formatting
-(setf *mode-line-pad-x* 7
-      *mode-line-pad-y* 10)
+(load "/home/steve/.config/stumpwm.d/keybindings.lisp")
+
+;; Modeline formatting3
+(setf *mode-line-pad-x* 5
+      *mode-line-pad-y* 8)
 (setf *window-format* "%m%n%s%c")
 (setf *screen-mode-line-format*
       "[^B%n^b] %v^>%d   ")
@@ -39,18 +39,22 @@
 (enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
 
 ;; Screen layouts
-(setf *screenlayouts-dir* "~/.screenlayouts")
 (defcommand hdmi-on () ()
   (run-shell-command "hdmi-on"))
 (defcommand hdmi-off () ()
   (run-shell-command "hdmi-off"))
-;; (defcommand mishascreen-on () ()
-;;   (run-shell-command "mishascreen-on"))
-;; (defcommand mishascreen-off () ()
-;;   (run-shell-command "mishascreen-off"))
-;; (defcommand screenshot (window)
-;;   ((:string "Enter the window name: "))
-;;   (run-shell-command (concat "screenshot " window)))
+(defcommand mishascreen-on () ()
+  (run-shell-command "mishascreen-on"))
+(defcommand mishascreen-off () ()
+  (run-shell-command "mishascreen-off"))
+(defcommand screenshot (window)
+  ((:string "Enter the window name: "))
+  (run-shell-command (concat "screenshot " window)))
+
+;; emacs everywhere
+(defcommand emacs-everywhere () ()
+  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
+(define-key *root-map* (kbd "E") "emacs-everywhere")
 
 
 (require :uiop)
@@ -63,8 +67,7 @@
    :name
    (uiop:strcat "Waiting for '" command "'")))
 
-
- (defun notify-send (msg &rest args)
+(defun notify-send (msg &rest args)
   (run (format nil "notify-send ~{~a~^ ~}" (cons msg args))))
 
 (defvar *slynk-thread* nil)
@@ -79,3 +82,5 @@
                            ))))
   nil)
 
+(defcommand slynk-stop () ((:string "Port number: "))
+  ())

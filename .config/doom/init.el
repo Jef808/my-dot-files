@@ -25,7 +25,7 @@
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
-       vertico           ; the search engine of the future
+       (vertico +childframe)           ; the search engine of the future
 
        :ui
        ;;deft              ; notational velocity for Emacs
@@ -85,10 +85,10 @@
 
        :tools
        ;;ansible
-       biblio            ; Writes a PhD for you (citation needed)
+       ;biblio            ; Writes a PhD for you (citation needed)
        ;; (debugger +lsp)          ; FIXME stepping through code, to help you add bugs
        direnv
-       (docker +lsp)
+       ;(docker +lsp)
        ;;editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
@@ -143,7 +143,7 @@
        (json
         +lsp
         +tree-sitter)              ; At least it ain't XML
-       (java +lsp)       ; the poster child for carpal tunnel syndrome
+       ;(java +lsp)       ; the poster child for carpal tunnel syndrome
        (javascript
         +lsp
         +tree-sitter)
@@ -163,8 +163,9 @@
         +passwords
         +pretty
         +journal
-        +gnuplot
-        +roam2)          ; organize your plain life in plain text
+        ;+gnuplot
+        ;+roam2
+	)          ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
@@ -175,7 +176,7 @@
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
-       (rest +jq)              ; Emacs as a REST client
+       ;(rest +jq)              ; Emacs as a REST client
        ;;rst               ; ReST in peace
        ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
        ;;(rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
@@ -191,12 +192,12 @@
        ;;zig               ; C, but simpler
 
        :email
-       (mu4e +org +gmail)
+       ;(mu4e +org +gmail)
        ;;notmuch
        ;;(wanderlust +gmail)
 
        :app
-       calendar
+       ;calendar
        ;;emms
        everywhere        ; *leave* Emacs!? You must be joking
        ;;irc               ; how neckbeards socialize

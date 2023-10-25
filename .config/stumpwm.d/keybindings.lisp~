@@ -34,7 +34,7 @@
 ;; Launch map             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;(defvar *exec-emacs* "exec emacsclient --create-frame --display=:0.0")
-(defvar *exec-emacs* "exec emacs --init-directory=~/.config/emacs")
+(defvar *exec-emacs* "exec emacs")
 (defvar *exec-chrome* "exec google-chrome-stable")
 (defvar *exec-rofi* "exec rofi -show drun -font 'Fira Code -18'")
 (defvar *exec-rofipass* "exec rofi-pass -show drun -font 'Fira Code -18'")
