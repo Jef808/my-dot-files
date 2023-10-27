@@ -23,6 +23,10 @@
 
 (setq inhibit-x-resources nil)
 
+;; Asynchronously highlights both files and directories based
+;; on their git status
+(setq +treemacs-git-mode 'deferred)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Using the Unix password store
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

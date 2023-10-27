@@ -4,16 +4,17 @@
 
 (in-package :stumpwm)
 
+(defvar *config-dir* "/home/steve/.config/stumpwm.d/")
+(setf *data-dir* "/home/steve/.local/share/stumpwm/")
+
 ;; modules
 ;;(load-module "alert-me")
 ;(load-module "notify")
 ;(notify:notify-server-toggle)
 
-(defvar *config-dir* "/home/steve/.config/")
-
-(setf *data-dir* "/home/steve/.local/share/stumpwm/")
-
 (load "/home/steve/.config/stumpwm.d/keybindings.lisp")
+(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
+
 
 ;; Modeline formatting3
 (setf *mode-line-pad-x* 5
@@ -28,7 +29,10 @@
 ;; can do that with mkfontdir <fontpath> && xset +fp <fontpath>, then
 ;; get the available XLFD (X Logical Font Description) string with xlsfonts
 ;; or xfontsel
-(set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
+;(set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
+(ql:quickload :clx-truetype)
+(load-module "ttf-fonts")
+(set-font (make-instance 'xft:font :family "JetBrains Mono" :subfamily "Regular" :size 14))
 
 ;; Input and Message window placements
 (setf *message-window-gravity* :top)
@@ -36,17 +40,14 @@
 (setf *input-window-gravity* :center)
 
 ;; Enable modeline
+
 (enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
 
 ;; Screen layouts
 (defcommand hdmi-on () ()
-  (run-shell-command "~/.screenlayout/hdmi-on"))
+  (run-shell-command ~/.screenlayout/hdmi-on.sh))
 (defcommand hdmi-off () ()
-  (run-shell-command "hdmi-off"))
-(defcommand mishascreen-on () ()
-  (run-shell-command "mishascreen-on"))
-(defcommand mishascreen-off () ()
-  (run-shell-command "mishascreen-off"))
+  (run-shell-command ~/.screenlayout/hdmi-off.sh))
 (defcommand screenshot (window)
   ((:string "Enter the window name: "))
   (run-shell-command (concat "screenshot " window)))
@@ -79,10 +80,5 @@
 ;;                          (slynk:create-server :port (or port *slynk-default-port*) :dont-close t)
 ;;                           )))
 ;;   nil)
-
-(run-shell-command "dunst")
-(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
-
-
 ;(defcommand slynk-stop () ((:string "Port number: "))
 ;  ())

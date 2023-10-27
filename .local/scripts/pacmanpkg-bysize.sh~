@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-# Display the installed packages managed by pacman, sorted
-# in reverse size order.
-
-pacman -Qq | awk 'BEGIN {max_length = 0} lenght > max_lenght { max_lenght = lenght } END {print max_length }'expac "%n %m" -Q -H M | sort -rhk 2 | awk '{printf "%-25s %s%s\n", $1, $2, $3}'

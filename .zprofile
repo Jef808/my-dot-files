@@ -1,4 +1,4 @@
-export EDITOR=emacsclient
+export EDITOR=emacs
 export NO_AT_BRIDGE=1
 
 ######################################################
@@ -28,6 +28,6 @@ unset SSH_AGENT_PID
  if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
    export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
  fi
- export GPG_TTY=`tty`
- gpg-connect-agent updatestartuptty /bye >/dev/null
-
+export GPG_TTY=`tty`
+ #gpg-connect-agent updatestartuptty /bye >/dev/null
+ gpgconf --launch gpg-agent
