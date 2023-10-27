@@ -5,6 +5,7 @@
 (in-package :stumpwm)
 
 (defvar *config-dir* "/home/steve/.config/stumpwm.d/")
+(init-load-path "/usr/share/stumpwm/contrib/")
 (setf *data-dir* "/home/steve/.local/share/stumpwm/")
 
 ;; modules
@@ -15,6 +16,7 @@
 (load "/home/steve/.config/stumpwm.d/keybindings.lisp")
 (run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
 
+(load-module "pinentry")
 
 ;; Modeline formatting3
 (setf *mode-line-pad-x* 5
