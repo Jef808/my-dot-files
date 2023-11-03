@@ -1,5 +1,0 @@
-[Unit]
-Description=Xorg Session Running StumpWM
-
-[Service]
-BindsTo=graphical-session.target

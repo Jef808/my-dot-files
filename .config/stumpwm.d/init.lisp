@@ -2,10 +2,11 @@
 ;;
 ;;; stumpwm config
 
+(require :stumpwm)
 (in-package :stumpwm)
 
 (defvar *config-dir* "/home/steve/.config/stumpwm.d/")
-(init-load-path "/usr/share/stumpwm/contrib/")
+(init-load-path "/opt/stumpwm-contrib/")
 (setf *data-dir* "/home/steve/.local/share/stumpwm/")
 
 ;; modules
@@ -13,12 +14,35 @@
 ;(load-module "notify")
 ;(notify:notify-server-toggle)
 
+(load "/home/steve/.config/stumpwm.d/init-daemons.lisp")
 (load "/home/steve/.config/stumpwm.d/keybindings.lisp")
-(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
+(load "/home/steve/.config/stumpwm.d/commands.lisp")
 
 (load-module "pinentry")
 
-;; Modeline formatting3
+(run-shell-command "hdmi-on")
+
+;; emacs everywhere
+;(defcommand emacs-everywhere () ()
+;  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
+;(define-key *root-map* (kbd "E") "emacs-everywhere")
+
+;; Message window font
+;; NOTE: Doesn't use fontconfig, need to make sure Xorg knows the font
+;; can do that with mkfontdir <fontpath> && xset +fp <fontpath>, then
+;; get the available XLFD (X Logical Font Description) string with xlsfonts
+;; or xfontsel
+;(ql:quickload :clx-truetype)
+;(load-module "ttf-fonts")
+;(set-font "-misc-jetbrains mono-medium-r-normal--0-0-0-0-m-0-*")
+(set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
+
+;; Input and Message window placements
+(setf *message-window-gravity* :top)
+(setf *message-window-input-gravity* :top)
+(setf *input-window-gravity* :center)
+
+;; Modeline formatting
 (setf *mode-line-pad-x* 5
       *mode-line-pad-y* 8)
 (setf *window-format* "%m%n%s%c")
@@ -26,40 +50,12 @@
       "[^B%n^b] %v^>%d   ")
 (setf *mode-line-border-width* 3)
 
-;; Message window font
-;; NOTE: Doesn't use fontconfig, need to make sure Xorg knows the font
-;; can do that with mkfontdir <fontpath> && xset +fp <fontpath>, then
-;; get the available XLFD (X Logical Font Description) string with xlsfonts
-;; or xfontsel
-;(set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
-(ql:quickload :clx-truetype)
-(load-module "ttf-fonts")
-(set-font (make-instance 'xft:font :family "JetBrains Mono" :subfamily "Regular" :size 14))
-
-;; Input and Message window placements
-(setf *message-window-gravity* :top)
-(setf *message-window-input-gravity* :top)
-(setf *input-window-gravity* :center)
-
 ;; Enable modeline
-
 (enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
 
-;; Screen layouts
-(defcommand hdmi-on () ()
-  (run-shell-command ~/.screenlayout/hdmi-on.sh))
-(defcommand hdmi-off () ()
-  (run-shell-command ~/.screenlayout/hdmi-off.sh))
-(defcommand screenshot (window)
-  ((:string "Enter the window name: "))
-  (run-shell-command (concat "screenshot " window)))
 
-;; emacs everywhere
-(defcommand emacs-everywhere () ()
-  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
-(define-key *root-map* (kbd "E") "emacs-everywhere")
-
-
+;; Load Slynk
+;(require :slynk)
 ;(require :uiop)
 ;(require :slynk)
 ;(defun run (command)
@@ -84,3 +80,54 @@
 ;;   nil)
 ;(defcommand slynk-stop () ((:string "Port number: "))
 ;  ())
+
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Profiling       ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+;(load "/home/steve/.config/stumpwm.d/profiling.lisp")
+;(defcommand prof-start () ()
+;  (sb-sprof:start-profiling))
+
+;(defcommand prof-end () ()
+;  (sb-sprof:stop-profiling)
+;  (sb-sprof:report :sort-by :cumulative-time)
+;  (sb-sprof:reset))
+
+;;;;;;;;;;;;;;;;;;;
+;; Rotating logs ;;
+;;;;;;;;;;;;;;;;;;;
+;; (require :log4cl)
+;; (log4cl::config :file "/home/steve/.config/stumpwm.d/log4cl-config.lisp")
+
+;; (defun log-and-tee (logger string start end)
+;;   (let ((log-string (subseq string start end)))
+;;     (log4cl:info logger log-string)))
+
+;; (defun tee-stdout ()
+;;   (let ((stdout-logger (log4cl:get-logger "STDOUT"))
+;;         (original-stdout sb-sys:*stdout*))
+;;     (setf sb-sys:*stdout*
+;;           (make-instance 'sb-gray:fundamental-output-stream
+;;                          :output-fn (lambda (stream string start end)
+;;                                       (log-and-tee stdout-logger string start end)
+;;                                       (write-string string original-stdout :start start :end end))))))
+
+;; (defun tee-stderr ()
+;;   (let ((stderr-logger (log4cl:get-logger "STDERR"))
+;;         (original-stderr sb-sys:*stderr*))
+;;     (setf sb-sys:*stderr*
+;;           (make-instance 'sb-gray:fundamental-output-stream
+;;                          :output-fn (lambda (stream string start end)
+;;                                       (log-and-tee stderr-logger string start end)
+;;                                       (write-string string original-stderr :start start :end end))))))
+
+;; (defun setup-logging ()
+;;   (log4cl:config :file "/home/steve/.config/stumpwm.d/log4cl-config.lisp")
+;;   (tee-stdout)
+;;   (tee-stderr)
+;;   (log4cl:info logger "STDOUT and STDERR now redirected to log file."))
+
+;; (setup-logging)

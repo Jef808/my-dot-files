@@ -238,61 +238,65 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
+;;(set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
 (use-package! nvm
   :after +Javascript-Npm)
 
+(add-hook! (js2-mode web-mode) 'prettier-js-mode)
+(add-hook! (js2-mode web-mode typescript-tsx-mode) #'add-node-modules-path)
 ;; (after! esl)
 
-(use-package! web-mode
-  :hook (web-mode . my-web-mode-hook)
-  :config
-  ;;(add-hook 'web-mode-hook #'lsp)
-  )
+;; (use-package! web-mode
+;;   :hook (web-mode . my-web-mode-hook)
+;;   :config
+;;   ;;(add-hook 'web-mode-hook #'lsp)
+;;   )
 
-(defun my-web-mode-hook ()
-  ;; add hook for web mode
-  (prettier-js-mode)
-  (lsp))
+;; (defun my-web-mode-hook ()
+;;   ;; add hook for web mode
+;;   (prettier-js-mode)
+;;   (lsp))
 
-(use-package! vue-mode
-  :mode "\\.vue\\'"
-  :hook (vue-mode . my-vue-mode-hook)
-  :config
-  (add-hook 'vue-mode-hook #'lsp))
+;; (use-package! vue-mode
+;;   :mode "\\.vue\\'"
+;;   :hook (vue-mode . my-vue-mode-hook)
+;;   :config
+;;   (add-hook 'vue-mode-hook #'lsp))
 
-(defun my-vue-mode-hook ()
-  ;; configure web-mode for vue files
-  (progn
-    (setq prettier-js-args '("--parser vue"
-                             "--trailing-comma" "all"
-                             "--bracket-spacing" "false"))
-    (prettier-js-mode)))
+;; (defun my-vue-mode-hook ()
+;;   ;; configure web-mode for vue files
+;;   (progn
+;;     (setq prettier-js-args '("--parser vue"
+;;                              "--trailing-comma" "all"
+;;                              "--bracket-spacing" "false"))
+;;     (prettier-js-mode)))
 
 ;; flycheck
-(use-package! flycheck
-  :hook (flycheck . add-node-modules-path)
-  :config
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
-  (flycheck-add-mode 'javascript-eslint 'vue-mode))
+;; (use-package! flycheck
+;;   :hook (flycheck . add-node-modules-path)
+;;   :config
+;;   (setq-default flycheck-disabled-checkers
+;;                 (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
+;;   (flycheck-add-mode 'javascript-eslint 'web-mode)
+;;   (flycheck-add-mode 'javascript-eslint 'vue-mode))
+
+
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
-(defun vue-mode-init-hook ()
-  (set-face-background 'mmm-default-submode-face nil))
+;; (defun vue-mode-init-hook ()
+;;   (set-face-background 'mmm-default-submode-face nil))
 
-(use-package! vue-mode
-  :hook (vue-mode . prettier-js-mode)
-  :mode "\\.vue\\'"
-  :config
-  (add-hook 'vue-mode-hook #'lsp)
-  (add-hook 'vue-mode-hook 'vue-mode-init-hook))
-
-;; (use-package! prettier-js
+;; (use-package! vue-mode
+;;   :hook (vue-mode . prettier-js-mode)
+;;   :mode "\\.vue\\'"
 ;;   :config
-;;   (add-hook! 'web-mode-hook #'prettier-js-mode))
+;;   (add-hook 'vue-mode-hook #'lsp)
+;;   (add-hook 'vue-mode-hook 'vue-mode-init-hook))
+
+(use-package! prettier-js
+  :config
+  (add-hook! 'web-mode-hook #'prettier-js-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flycheck config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -439,12 +443,6 @@ The point should be on the top-level function name."
               "\n")
              (incf ord)))
       (aya-expand))))
-
-;; ActivityWatch
-(use-package! activity-watch-mode
-  :commands global-activity-watch-mode
-  :config
-  (global-activity-watch-mode))
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.

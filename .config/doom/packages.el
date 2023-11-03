@@ -1,31 +1,35 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-(package! password-store)
+;;;;;;; tmptmptmp
 
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
           :files ("google-c-style.el")))
 
-(package! vue-mode)
-(package! vue-html-mode)
+;(package! vue-mode)
+;(package! vue-html-mode)
 (package! prettier-js)
 (package! add-node-modules-path)
 
 (package! dap-mode :disable t)
 
-(package! ob-napkin)
-(package! ob-http)
-(package! ob-restclient)
-(package! verb)
+(package! systemd)
 
-(package! conda)
+(package! sly-quicklisp)
+
+;(package! ob-napkin)
+;(package! ob-http)
+;(package! ob-restclient)
+;(package! verb)
+
+;(package! conda)
 (package! nvm)
 
 (package! info-colors)
-(package! auto-yasnippet)
+;(package! auto-yasnippet)
 
-(package! log4e)
+;(package! log4e)
 
 ;(package! doxymacs)
 
@@ -41,10 +45,10 @@
 (package! gptel)
 
 ;; ActivityWatch collector
-(package! activity-watch-mode)
+;(package! activity-watch-mode)
 
 ;; For writing texts with Jira markup syntax
-(package! jira-markup-mode)
+;(package! jira-markup-mode)
 
 
 

@@ -91,6 +91,6 @@
 
 ;; If circumventing the above remapping is needed
 ;; e.g. when setting up keybindings on the browser
-(defcommand toggle-remapped-keys () ()
-  ((lambda (var) (setf var (not var)))
-   *REMAPPED-KEYS-ENABLED-P*))
+;(defcommand toggle-remapped-keys () ()
+;  ((lambda (var) (setf var (not var)))
+;   *REMAPPED-KEYS-ENABLED-P*))

@@ -1,0 +1,11 @@
+[Unit]
+Description=TB Dashboard
+
+[Service]
+Type=simple
+WorkingDirectory=/home/steve/projects/dashboard
+ExecStart=/home/steve/.config/nvm/versions/node/v21.1.0/lib/node_modules/npm/bin npm run dev
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

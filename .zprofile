@@ -20,14 +20,16 @@ export DOOMDIR=$HOME/.config/doom
 ######################################################
 export PATH=$HOME/.local/bin:$EMACSDIR/bin:$PATH
 
+export SBCL_HOME=/usr/local/lib/sbcl
+
 ######################################################
 # This is to make sure that the gpg-agent will
 # always communicate using the correct TTY
 ######################################################
-unset SSH_AGENT_PID
- if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
-   export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
- fi
-export GPG_TTY=`tty`
- #gpg-connect-agent updatestartuptty /bye >/dev/null
- gpgconf --launch gpg-agent
+#unset SSH_AGENT_PID
+# if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
+#   export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
+# fi
+#export GPG_TTY=`tty`
+# #gpg-connect-agent updatestartuptty /bye >/dev/null
+# gpgconf --launch gpg-agent
