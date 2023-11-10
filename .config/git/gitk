@@ -1,5 +1,5 @@
-set mainfont {{jetbrains mono} 8}
-set textfont {{jetbrains mono nl medium} 8}
+set mainfont {{jetbrains mono} 13}
+set textfont {{jetbrains mono nl medium} 13}
 set uifont {{jetbrains mono medium} 12}
 set tabstop 8
 set findmergefiles 0
@@ -57,8 +57,8 @@ set geometry(main) 1364x689+0+0
 set geometry(state) normal
 set geometry(topwidth) 1364
 set geometry(topheight) 442
-set geometry(pwsash0) "464 1"
-set geometry(pwsash1) "932 1"
-set geometry(botwidth) 490
+set geometry(pwsash0) "651 1"
+set geometry(pwsash1) "1311 1"
+set geometry(botwidth) 686
 set geometry(botheight) 242
 set permviews {}

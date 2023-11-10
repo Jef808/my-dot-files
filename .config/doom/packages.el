@@ -1,7 +1,9 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-;;;;;;; tmptmptmp
+;; Local packages
+(package! tb-dev
+  :recipe (:local-repo "~/projects/elisp/tb-dev"))
 
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
@@ -21,7 +23,7 @@
 ;(package! ob-napkin)
 ;(package! ob-http)
 ;(package! ob-restclient)
-;(package! verb)
+(package! verb)
 
 ;(package! conda)
 (package! nvm)
@@ -38,9 +40,9 @@
       :pin "c2bdf7e12c530eb85476d3aef317eb2941ab9440"
       :recipe (:host github :repo "magit/transient"))
 
-(package! with-editor
-          :pin "bbc60f68ac190f02da8a100b6fb67cf1c27c53ab"
-          :recipe (:host github :repo "magit/with-editor"))
+;; (package! with-editor
+;;           :pin "bbc60f68ac190f02da8a100b6fb67cf1c27c53ab"
+;;           :recipe (:host github :repo "magit/with-editor"))
 
 (package! gptel)
 

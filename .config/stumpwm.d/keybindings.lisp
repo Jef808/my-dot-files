@@ -35,14 +35,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;(defvar *exec-emacs* "exec emacsclient --create-frame --display=:0.0")
 (defvar *exec-emacs* "exec emacs --init-directory=~/.config/emacs")
-(defvar *exec-chrome* "exec google-chrome-stable")
+(defvar *exec-chrome* "exec systemd-run --user --unit=chrome google-chrome-stable")
 (defvar *exec-rofi* "exec rofi -show drun -font 'Fira Code -18'")
 (defvar *exec-rofipass* "exec rofi-pass -show drun -font 'Fira Code -18'")
 
 (defvar *launch-map*
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "b") "exec qutebrowser")
-    (define-key m (kbd "f") "exec firefox")
     (define-key m (kbd "g") *exec-chrome*)
     (define-key m (kbd "e") *exec-emacs*)
     (define-key m (kbd "k") "exec kitty")

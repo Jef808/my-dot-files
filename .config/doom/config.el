@@ -444,6 +444,10 @@ The point should be on the top-level function name."
              (incf ord)))
       (aya-expand))))
 
+(use-package! tb-dev
+  :defer t
+  :after projectile)
+
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 ;;
