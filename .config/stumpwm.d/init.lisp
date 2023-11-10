@@ -5,18 +5,18 @@
 (require :stumpwm)
 (in-package :stumpwm)
 
-(defvar *config-dir* "/home/steve/.config/stumpwm.d/")
+(defvar *config-dir* "/home/jfa/.config/stumpwm.d/")
 (init-load-path "/opt/stumpwm-contrib/")
-(setf *data-dir* "/home/steve/.local/share/stumpwm/")
+(setf *data-dir* "/home/jfa/.local/share/stumpwm/")
 
 ;; modules
 ;;(load-module "alert-me")
 ;(load-module "notify")
 ;(notify:notify-server-toggle)
 
-(load "/home/steve/.config/stumpwm.d/init-daemons.lisp")
-(load "/home/steve/.config/stumpwm.d/keybindings.lisp")
-(load "/home/steve/.config/stumpwm.d/commands.lisp")
+(load "/home/jfa/.config/stumpwm.d/init-daemons.lisp")
+(load "/home/jfa/.config/stumpwm.d/keybindings.lisp")
+(load "/home/jfa/.config/stumpwm.d/commands.lisp")
 
 (load-module "pinentry")
 
@@ -87,7 +87,7 @@
 ;; Profiling       ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-;(load "/home/steve/.config/stumpwm.d/profiling.lisp")
+;(load "/home/jfa/.config/stumpwm.d/profiling.lisp")
 ;(defcommand prof-start () ()
 ;  (sb-sprof:start-profiling))
 
@@ -100,7 +100,7 @@
 ;; Rotating logs ;;
 ;;;;;;;;;;;;;;;;;;;
 ;; (require :log4cl)
-;; (log4cl::config :file "/home/steve/.config/stumpwm.d/log4cl-config.lisp")
+;; (log4cl::config :file "/home/jfa/.config/stumpwm.d/log4cl-config.lisp")
 
 ;; (defun log-and-tee (logger string start end)
 ;;   (let ((log-string (subseq string start end)))
@@ -125,7 +125,7 @@
 ;;                                       (write-string string original-stderr :start start :end end))))))
 
 ;; (defun setup-logging ()
-;;   (log4cl:config :file "/home/steve/.config/stumpwm.d/log4cl-config.lisp")
+;;   (log4cl:config :file "/home/jfa/.config/stumpwm.d/log4cl-config.lisp")
 ;;   (tee-stdout)
 ;;   (tee-stderr)
 ;;   (log4cl:info logger "STDOUT and STDERR now redirected to log file."))

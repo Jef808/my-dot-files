@@ -45,7 +45,7 @@ xset +fp "$HOME/.local/share/fonts/ttf"
 
 #mkdir -p $XDG_DATA_HOME/stumpwm
 
-# exec sbcl --load $HOME/.stumpwmstarter > $XDG_DATA_HOME/stumpwm/stumpwm.log
+exec sbcl --load $HOME/.stumpwmstarter > $XDG_DATA_HOME/stumpwm/stumpwm.log
 # exec /usr/bin/stumpwm
 # exec /usr/local/bin/stumpwm
 # /usr/local/bin/stumpwm
@@ -60,4 +60,4 @@ xset +fp "$HOME/.local/share/fonts/ttf"
 # (running 'sx' alone would give file permission error
 # coming from the .xinitrc script)
 
-/home/steve/quicklisp/dists/quicklisp/software/stumpwm-20231021-git/stumpwm > /home/steve/.local/share/stumpwm/stumpwm.log 2>&1
+#/home/jfa/quicklisp/dists/quicklisp/software/stumpwm-20231021-git/stumpwm > /home/jfa/.local/share/stumpwm/stumpwm.log 2>&1
