@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: nss
+# uuid: 818c0ad5-01e2-4f5d-aa2c-54150fd7861f
+
+# key: nss
+# condition: t
+# --
+namespace $1 {
+
+$0
+
+} // namespace $1

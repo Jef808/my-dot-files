@@ -1,0 +1,36 @@
+# -*- mode: sh -*-
+
+# --- NVM --- #
+use_nvm() {
+  local node_version=$1
+
+  nvm_sh=~/.config/nvm/nvm.sh
+  if [[ -e $nvm_sh ]]; then
+    source $nvm_sh
+    nvm use $node_version
+  fi
+}
+
+# --- DIRENV CACHE DIR --- #
+: ${XDG_CACHE_HOME:=$HOME/.cache}
+declare -A direnv_layout_dirs
+direnv_layout_dir() {
+  echo "${direnv_layout_dirs[$PWD]:=$(
+    local hash="$(sha1sum - <<<"${PWD}" | cut -c-7)"
+    local path="${PWD//[^a-zA-Z0-9]/-}"
+    echo "${XDG_CACHE_HOME}/direnv/layouts/${hash}${path}"
+  )}"
+}
+
+# --- CONDA --- #
+
+# Conda Direnv Layout
+layout_mamba() {
+  local env_dir=$1
+  PATH_add "$env_dir/bin"
+  if [[ -d "$env_dir" ]]; then
+    export CONDA_PREFIX="$env_dir"
+    eval "$(conda shell.zsh hook)"
+    mamba activate "$env_dir"
+  fi
+}

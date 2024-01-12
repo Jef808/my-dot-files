@@ -1,0 +1,1 @@
+/home/jfa/.config/stumpwm.d

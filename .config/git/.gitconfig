@@ -1,0 +1,6 @@
+[user]
+	email = jf.arbour@gmail.com
+	name = Jean-Francois Arbour
+    signingkey = A45A380020FC38C7
+[commit]
+	gpgsign = true

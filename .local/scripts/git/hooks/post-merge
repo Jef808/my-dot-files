@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+# post-merge hook to run 'git pull' on a local server
+
+# This hook is invoked by git merge, which happens when a git pull is done on a local repository.
+
+# Check if the merge was a squash merge (flag=0 for non-squash merge)
+if [ "$1" -eq 0 ]; then
+    # Specify your server's user and host
+    SERVER_USER="jfa"
+    SERVER_HOST="jfas-thinkpad"
+    # Specify the absolute path to your git repository on the server
+    SERVER_REPO_PATH="/home/jfa/projects/tbaem-aem"
+
+    # Fetch and merge changes from the origin without checking out
+    # the branch on the server (safe operation if there are local changes)
+    ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_REPO_PATH && git pull"
+fi

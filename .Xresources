@@ -1,0 +1,102 @@
+! #include "/usr/share/X11/app-defaults/UXTerm"
+
+! Dark theme:
+#define dark_bg #282c34
+#define dark_fg #bbc2cf
+
+! Light theme
+!  ;; name     256-value
+#define light_bg #dfdfdf
+#define light_fg #383a42
+
+#define base0 #f0f0f0
+#define base1 #e7e7e7
+
+#define fg_alt #c6c7c7
+
+#define grey #9ca0a4
+#define red #e45649
+#define orange #da8548
+#define green #50a14f
+#define teal #4db5bd
+#define yellow #986801
+#define blue #4078f2
+#define dark_blue #a0bcf8
+#define magenta #a626a4
+#define violet #b751b6
+#define cyan #0184bc
+#define dark_cyan #005478
+
+XTerm*background: dark_bg
+XTerm*foreground: dark_fg
+! *background: light_bg
+! *foreground: light_fg
+
+! XTerm*color0: dark_bg
+*color0: light_bg
+! foreground, standard files
+! XTerm*color1: light_fg
+*color1: light_fg
+! Directories
+! XTerm*color12: magenta
+*color12: magenta
+! World writable files like (eg /tmp)
+! XTerm*color2: orange
+*color2: orange
+! foreground for setuid file (/usr/bin/sudo)
+! XTerm*color7: dark_blue
+*color7: dark_blue
+! Orphaned symlinks, gzipped files
+! XTerm*color9: red
+*color9: red
+! executable binaries
+! XTerm*color10: green
+*color10: green
+! symlinks
+! XTerm*color14: teal
+*color14: teal
+! background color for highlighted setuid file
+! XTerm*color15: dark_blue
+*color15: dark_blue
+
+*VT100*colorMode: on
+*VT100*boldColors: on
+*VT100*dynamicColors: on
+
+*VT100.locale: true
+*menuLocale: ""
+
+XTerm*termName: xterm-truecolor
+
+! Backspace settings
+*ptyInitialErase: true
+*metaSendsEscape: true
+*backarrowKey: true
+XTerm*backarrowKeyIsErase: true
+
+! XTerm fonts settings
+XTerm*faceName: Iosevka Term Medium Nerd
+! XTerm*faceName: DejaVu Sans Mono:style=book
+XTerm*faceSize: 14
+XTerm*faceSize1: 14
+XTerm*faceSize2: 14
+XTerm*faceSize3: 14
+XTerm*faceSize4: 18
+XTerm*faceSize5: 22
+XTerm*renderFont: true
+
+XTerm*CursorColor: blue
+XTerm*cursorBlink: true
+
+*utf8Title: true
+! Number of lines to save on display
+XTerm*saveLines: 4096
+! Do not scroll down on output
+XTerm*scrollTtyOutput: false
+! Scroll down on key press
+XTerm*scrollKey: true
+
+! *VT100.translations: #override \n\
+!         Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+! 	Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+*TkTheme: breeze-dark

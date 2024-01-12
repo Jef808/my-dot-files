@@ -1,0 +1,6 @@
+[Unit]
+Description=Check Battery Level
+
+[Service]
+Type=oneshot
+ExecStart=/home/jfa/projects/system-monitor/battery.sh

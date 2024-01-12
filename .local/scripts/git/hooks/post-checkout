@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+# post-checkout hook to run 'git checkout' on a local server
+
+# Arguments provided by git for post-checkout hook
+previous_head=$1
+new_head=$2
+checkout_type=$3
+
+# Check if the checkout was a branch checkout (flag=1)
+if [ "$checkout_type" -eq 1 ]; then
+    # The branch name can be found by stripping the refs/heads/ part from $new_head
+    branch_name=$(git rev-parse --symbolic --abbrev-ref $new_head)
+
+    # Specify your server's user and host
+    SERVER_USER="jfa"
+    SERVER_HOST="jfas-thinkpad"
+    # Specify the absolute path to your git repository on the server
+    SERVER_REPO_PATH="/home/jfa/projects/tbaem-aem"
+
+    # Run 'git checkout' on the server
+    ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_REPO_PATH && git checkout $branch_name"
+fi
