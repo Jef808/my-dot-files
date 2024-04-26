@@ -4,7 +4,7 @@
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com")
 
-(load! "/home/jfa/projects/echo-crafter/echo-crafter.el")
+;(load! "/home/jfa/projects/echo-crafter/echo-crafter.el")
 
 ;; Path variables
 ;; (setq! user-formatting-dir (file-name-as-directory (expand-file-name "editor/formatting" doom-user-dir))
@@ -16,23 +16,195 @@
 (setq scroll-error-top-bottom t
       next-screen-context-lines 4)
 
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
+(setf (alist-get "\\.h\\'" auto-mode-alist nil nil #'equal) 'c-or-c++-ts-mode
+      (alist-get "\\.ts\\'" auto-mode-alist nil nil #'equal) 'typescript-ts-mode
+      (alist-get "\\.tsx\\'" auto-mode-alist nil nil #'equal) 'tsx-ts-mode
+      (alist-get "\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" auto-mode-alist nil nil #'equal) 'c++-ts-mode
+      (alist-get "\\.\\(cc\\|hh\\)\\'" auto-mode-alist nil nil #'equal) 'c++-ts-mode
+      (alist-get "\\.py\\'" auto-mode-alist nil nil #'equal) 'python-ts-mode
+      (alist-get "\\.css\\'" auto-mode-alist nil nil #'equal) 'css-ts-mode
+      (alist-get "\\.json\\'" auto-mode-alist nil nil #'equal) 'json-ts-mode
+      (alist-get "\\.cmake\\'" auto-mode-alist nil nil #'equal) 'cmake-ts-mode
+      (alist-get "\\CMakeLists\\.txt\\'" auto-mode-alist nil nil #'equal) 'cmake-ts-mode
+      (alist-get "\\.\\(e?ya?\\|ra\\)ml\\'" auto-mode-alist nil nil #'equal) 'yaml-ts-mode
+      (alist-get "\\.rs\\'" auto-mode-alist nil nil #'equal) 'rust-ts-mode)
 
 (setq envrc-direnv-executable "/usr/bin/direnv")
-
 (setq inhibit-x-resources nil)
+(setq browse-url-browser-function 'browse-url-chrome)
+(setq browse-url-chrome-program "/usr/bin/google-chrome-stable")
+
+
+
+;; Map \\[execute-extended-command] to C-c C-m and C-x C-m
+;; since it's faster than M-x
+(global-set-key (kbd "C-x C-m") 'execute-extended-command)
+(global-set-key (kbd "C-c C-m") 'execute-extended-command)
+
+;; Map \\[backward-kill-word] to C-w (the default in bash)
+(global-set-key (kbd "C-w") 'backward-kill-word)
+
+;; Remap \\[kill-region] to C-x C-k (it was C-w)
+(global-set-key (kbd "C-x C-k") 'kill-region)
+
+
 
 ;; Asynchronously highlights both files and directories based
 ;; on their git status
 (setq +treemacs-git-mode 'deferred)
 
+;; (after! python-mode
+;;   :config
+;;   (setq flycheck-python-pyright-executable "/usr/bin/pyright"))
+
+
+
+(setq +tree-sitter-hl-enabled-modes t)
+;; (add-hook!
+;;  :append
+;;  'doom-after-init-hook '(global-flycheck-mode,
+;;                          global-eldoc-mode,
+;;                          global-company-mode,
+;;                          global-auto-revert-mode,
+;;                          global-visual-line-mode,
+;;                          global-subword-mode,
+;;                          global-hl-line-mode,
+;;                          global-npm-mode,
+;;                          global-direnv-mode,
+;;                          global-copilot-mode,
+;;                          global-font-lock-mode,
+;;                          global-goto-address-mode
+;;                          ))
+
+;;(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; restclient http helpers ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package! know-your-http-well
+  :after company-restclient)
+
+;; (use-package! flycheck
+;;   :init
+;;   (setq flycheck-pylintrc "~/.config/pylint/pylintrc")
+;;   :config
+;;   (setq flycheck-check-syntax-automatically t)
+;;   (setq flycheck-python-pyright-executable "/usr/bin/pyright"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Github Copilot
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Communicate with LLMs using ellm
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun get-openai-api-key ()
+  "Get the openai api key from the password store."
+  (password-store-get "openai/emacs_api_key"))
+(defun get-anthropic-api-key ()
+  "Get the anthropic api key from the password store."
+  (password-store-get "anthropic/emacs_api_key"))
+(defun get-groq-api-key ()
+  "Get the groq api key from the password store."
+  (password-store-get "groq/ellm_api_key"))
+
+(load "~/projects/emacs/ellm/ellm.el")
+(require 'ellm)
+(setq ellm-get-openai-api-key #'get-openai-api-key
+      ellm-get-anthropic-api-key #'get-anthropic-api-key
+      ellm-get-groq-api-key #'get-groq-api-key)
+(global-ellm-mode)
+
+(defvar ellm-system-message-elisp "You are a useful emacs-integrated general assistant, expert in writing emacs-lisp and \
+in the technicalities of the emacs packages ecosystem in general.
+Your goal is to provide emacs-lisp code snippets, explanations, and general guidance to the user, \
+according to their needs regarding emacs-lisp programming.
+When the user provides CONTEXT, you should use it to provide more accurate and relevant answers.
+You are very cautious when providing information or making a claim, thus always accompanying them with \
+thorough explanations and/or justifications when providing non-obvious answers.
+Always answer with a request for clarifications when you are not fully confident on how to address a user's query."
+  "The system message for asking questions about emacs lisp in ellm.")
+
+;; (defun prompt-gpt (command)
+;;   ;; Use gpt-4 to transform COMMAND into an s-expression
+;;   (with-output-to-temp-buffer "*Command Output*"
+;;     (shell-command command (current-buffer))
+;;     (pop-to-buffer "*Command Output*")
+;;     (emacs-lisp-mode)
+;;     (goto-char (point-max))))
+
+;; (defun my-extract-python-function ()
+;;   "Extract the Python function definition at the current point."
+;;   (save-excursion  ; Preserve the original cursor position
+;;     (let (start end function-text)
+;;       (python-nav-beginning-of-defun)  ; Go to the start of the function
+;;       (setq start (point))  ; Mark the start position
+;;       (python-nav-end-of-defun)  ; Go to the end of the function
+;;       (setq end (point))  ; Mark the end position
+;;       (setq function-text (buffer-substring-no-properties start end))  ; Extract the function text
+;;       (message function-text))))  ; Display the extracted text
+
+;; (defun my-insert-python-docstring ()
+;;   "Generate and insert a docstring describing the Python function at point."
+;;   (let ((docstring (shell-command "gen-python-docstring2" (my-extract-python-function))))
+;;     (save-excursion  ; Preserve the original cursor position
+;;       (python-nav-beginning-of-defun)  ; Go to the start of the function
+;;       (forward-line)  ; Move to the line after the def line
+;;       (let ((indentation (make-string (current-indentation) ?\s)))  ; Store the current indentation level
+;;         (if (looking-at (concat indentation "\"\"\""))  ; Check if a docstring already exists
+;;             (delete-region (point) (progn (forward-sexp) (point)))  ; Remove the existing docstring
+;;           (open-line 1))  ; Otherwise, open a line for the new docstring
+;;         (insert (concat indentation "\"\"\"" docstring "\"\"\"\n"))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Using the Unix password store
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq auth-sources '(password-store))
-(setq epg-pinentry-mode 'loopback)
-(pinentry-start)
+;; (setq auth-sources '(password-store))
+;; (setq epg-pinentry-mode 'loopback)
+;; (pinentry-start)
+
+;;;;;;;;;;;;;
+;; Buffers ;;
+;;;;;;;;;;;;;
+(defun ibuffer-filter-by-workspace (buf)
+  "Filter buffers by their workspace."
+  (let ((ws (workspace-name (buffer-local-value 'workspace-current-name buf))))
+    (if ws
+        (string= ws (workspace-current-name))
+      (not (workspace-buffer-p buf)))))
+
+(defun ibuffer-group-by-workspace ()
+  "Group buffers by their workspace."
+  (ibuffer-make-column-alist)
+  (ibuffer-do-sort-by-alphabetic)
+  (ibuffer-update nil t)
+  (ibuffer-forward-line 0)
+  (ibuffer-filter-by-predicate 'ibuffer-filter-by-workspace))
+
+(add-hook 'ibuffer-mode-hook
+          (lambda ()
+            (ibuffer-switch-to-saved-filter-groups "workspaces")
+            (unless (eq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
+              (setq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
+              (ibuffer-update nil t))))
+
+(setq ibuffer-saved-filter-groups
+      '(("workspaces"
+         ("emacs" (workspace . "emacs"))
+         ("Workspace 1" (workspace . "1"))
+         ("Workspace 2" (workspace . "2"))
+         ("Workspace 3" (workspace . "3"))
+         ("Other" (workspace . nil)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility functions
@@ -47,7 +219,6 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
    ((string-equal system-type "gnu/linux")
     (shell-command "uuidgen" t))
    ))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Projects configuration
@@ -92,7 +263,7 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
     (cons (format "[CRM%s] %s"
                   (replace-regexp-in-string
                    "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
+                  crm-separator)
                   (car args))
           (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
@@ -118,8 +289,8 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;; Search
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Use Consult instead of isearch
-(map! "C-s" #'consult-line)
-(map! "C-r" #'consult-line)
+;(map! "C-s" #'consult-line)
+;(map! "C-r" #'consult-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Completion
@@ -141,29 +312,67 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! org-directory (file-name-as-directory "~/org"))
-(after! 'org-mode
-  (add-to-list 'org-babel-load-languages
-               '((http . t)
-                 (restclient . t)
-                 (python . t)
-                 (C++ . t))))
+(setq org-directory "~/org/")
+(after! org-mode
+  (setq org-startup-folded 'show2levels
+        org-ellpsis " [...] ")
+  (setq org-todo-keyword-faces
+        '(("TODO" . +org-todo-onhold)
+          ("NEXT" . +org-todo-active)
+          ("SOMEDAY" . +org-todo-project)
+          ("[-]" . +org-todo-active)
+          ("STRT" . +org-todo-active)
+          ("[?]" . +org-todo-onhold)
+          ("WAIT" . +org-todo-onhold)
+          ("HOLD" . +org-todo-onhold)
+          ("PROJ" . +org-todo-project)
+          ("NO" . +org-todo-cancel)
+          ("KILL" . +org-todo-cancel))))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((awk . t)
+   (C . t)
+   (C++ . t)
+   (comint . t)
+   (css . t)
+   (elisp . t)
+   (eshell . t)
+   (gnuplot . t)
+   (screen . t)
+   (sed . t)
+   (dot . t)
+   (java . t)
+   (latex . t)
+   (lisp . t)
+   (lua . t)
+   (makefile . t)
+   (js . t)
+   (org . t)
+   (python . t)
+   (sass . t)
+   (sql . t)
+   (sqlite . t)
+   (restclient . t)))
 
-(setq! org-latex-listings 'minted
-       org-latex-packages-alist '(("" "minted"))
-       org-latex-pdf-process
-       '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+;(org-src-lang-mode)
+;; org export
+;; https://github.com/fniessen/org-html-themes
+;; Use #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+
+;; (setq! org-latex-listings 'minted
+;;        org-latex-packages-alist '(("" "minted"))
+;;        org-latex-pdf-process
+;;        '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+;;          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 ;; diary config
-(setq! diary-file (expand-file-name "diary" org-directory)
-       diary-comment-start "###")
-(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+;; (setq! diary-file (expand-file-name "diary" org-directory)
+;;        diary-comment-start "###")
+;; (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 ;; org-agenda
-(setq! org-agenda-include-diary t)
-
-
+;(setq! org-agenda-include-diary t)
 ;; (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
 ;; (setq org-roam-dailies-directory "daily/")
 ;; (setq org-roam-dailies-capture-templates
@@ -174,52 +383,34 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;(org-roam-db-autosync-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Lsp Configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! lsp-mode
+  (setq lsp-enable-symbol-highlighting nil))
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable nil
+        lsp-ui-doc-enable nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! python-interpreter "/opt/miniconda3/bin/python"
-       lsp-ansible-python-interpreter-path "/opt/miniconda3/bin/python"
-       lsp-python-ms-extra-paths '(("/opt/miniconda3/bin/python"))
-       python-shell-exec-path "/opt/miniconda3/bin/"
-       flycheck-python-flake8-executable "/opt/miniconda3/bin/flake8"
-       lsp-clients-pylsp-library-directories "/opt/miniconda3/"
-       pyvenv-default-virtual-env-name "/opt/miniconda3/env")
-(setenv "WORKON_HOME" (concat (getenv "CONDA_PREFIX") "/envs"))
-(pyvenv-mode t)
-(set-lookup-handlers! 'python-mode
-  :definition  #'anaconda-mode-find-definitions
-  :references #'anaconda-mode-find-references
-  :documentation #'anaconda-mode-show-doc)
-(use-package! conda
-  :config
-  (setq conda-anaconda-home "/opt/miniconda3")
-  (push "/opt/miniconda3" conda-home-candidates)
-  (conda-env-activate "base"))
 
-;; Verb
-(use-package! verb
-  :after org
-  :config
-  (defvar verb-edn-request-enabled t)
-  (defvar verb-edn-response-enabled t)
-  ;; (setq verb-inhibit-cookies t
-  ;;       verb-json-use-node 'json-mode)
-  (map! :map org-mode-map
-        (:localleader "v" verb-command-map
-                      (:prefix ("v" . :verb)
-                               "r"
-#'verb-send-request-on-point-other-window-stay)))
+(setq! lsp-python-server-command '("python-language-server" "--stdio")
+       lsp-python-server-args '("--client-id" "emacs" "--project" "." "--log-level" "info")
+       lsp-python-pyright-command '("pyright" "langserver" "--stdio"))
 
-  (map! :map verb-response-body-mode-map
-        :n "q" #'kill-buffer-and-window)
+;; (add-to-list 'lsp-language-id-configuration '(python-mode . "pyright"))
 
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((verb . t)
-     (typescript . t)))
+(setq! flycheck-python-pylint-executable "pyright"
+       flycheck-python-black-executable "black")
 
-  (advice-add 'verb--request-spec-post-process :around #'verb--request-spec-post-process-a)
 
-  (add-hook! 'verb-post-response-hook #'verb-post-response-h))
+(defun my-make-python-docstring ()
+  (interactive)
+  (let ((line-content (thing-at-point 'line t)))
+    (when (string-match "^\\s-+#\\s-" line-content)
+      (delete-region (line-beginning-position) (line-end-position))
+      (insert (format "\"\"\"%s\"\"\"" (string-trim-left (thing-at-point 'line t) "\\s-+#\\s-+"))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -249,137 +440,48 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 
 ;; (add-hook! (js2-mode web-mode) 'prettier-js-mode)
 (add-hook! (js2-mode web-mode typescript-tsx-mode) #'add-node-modules-path)
-;; (after! esl)
 
-;; (use-package! web-mode
-;;   :hook (web-mode . my-web-mode-hook)
-;;   :config
-;;   ;;(add-hook 'web-mode-hook #'lsp)
-;;   )
-
-;; (defun my-web-mode-hook ()
-;;   ;; add hook for web mode
-;;   (prettier-js-mode)
-;;   (lsp))
-
-;; (use-package! vue-mode
-;;   :mode "\\.vue\\'"
-;;   :hook (vue-mode . my-vue-mode-hook)
-;;   :config
-;;   (add-hook 'vue-mode-hook #'lsp))
-
-;; (defun my-vue-mode-hook ()
-;;   ;; configure web-mode for vue files
-;;   (progn
-;;     (setq prettier-js-args '("--parser vue"
-;;                              "--trailing-comma" "all"
-;;                              "--bracket-spacing" "false"))
-;;     (prettier-js-mode)))
-
-;; flycheck
-;; (use-package! flycheck
-;;   :hook (flycheck . add-node-modules-path)
-;;   :config
-;;   (setq-default flycheck-disabled-checkers
-;;                 (append flycheck-disabled-checkers '(javascript-jshint json-jsonlist)))
-;;   (flycheck-add-mode 'javascript-eslint 'web-mode)
-;;   (flycheck-add-mode 'javascript-eslint 'vue-mode))
-
-
-
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-;; (defun vue-mode-init-hook ()
-;;   (set-face-background 'mmm-default-submode-face nil))
-
-;; (use-package! vue-mode
-;;   :hook (vue-mode . prettier-js-mode)
-;;   :mode "\\.vue\\'"
-;;   :config
-;;   (add-hook 'vue-mode-hook #'lsp)
-;;   (add-hook 'vue-mode-hook 'vue-mode-init-hook))
-
-;; (use-package! prettier-js
-;;   :config
-;;   (add-hook! 'web-mode-hook #'prettier-js-mode))
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; Flycheck config
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (setq! flycheck-cppcheck-standards "--std=c++20"
-;;        flycheck-c/c++-cppcheck-executable "/usr/bin/cppcheck"
-;;        flycheck-clang-language-standard "gnu++20")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Magit / Forge
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package forge)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; gptel
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package! gptel
-  :config
-  (setq gptel-default-mode 'org-mode)
-  ;; (setq gptel-api-key #'(lambda ()
-  ;;                         (string-trim-right
-  ;;                          (with-output-to-string
-  ;;                            (with-current-buffer standard-output
-  ;;                              (shell-command "pass openai.com/api_key" t))))))
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Copilot
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package! copilot
-;;   :hook (prog-mode . copilot-mode)
-;;   :bind (:map copilot-completion-mode
-;;               ("<tab>" . 'copilot-accept-completion)
-;;               ("TAB" . 'copilot-accept-completion)
-;;               ("C-TAB" . 'copilot-accept-completion-by-word)
-;;               ("C-<tab>" . 'copilot-accept-completion-by-word)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'light)
        doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
-       doom-theme 'doom-one)
+       doom-theme 'doom-dracula)
 
 ;; Files (from https://github.com/elken/doom#marginalia)
-(after! marginalia
-  (setq marginalia-censor-variables nil)
+;; (after! marginalia
+;;   (setq marginalia-censor-variables nil)
 
-  (defadvice! +marginalia--anotate-local-file-colorful (cand)
-    "Just a more colourful version of `marginalia--anotate-local-file'."
-    :override #'marginalia--annotate-local-file
-    (when-let (attrs (file-attributes (substitute-in-file-name
-                                       (marginalia--full-candidate cand))
-                                      'integer))
-      (marginalia--fields
-       ((marginalia--file-owner attrs)
-        :width 12 :face 'marginalia-file-owner)
-       ((marginalia--file-modes attrs))
-       ((+marginalia-file-size-colorful (file-attribute-size attrs))
-        :width 7)
-       ((+marginalia--time-colorful (file-attribute-modification-time attrs))
-        :width 12))))
+;;   (defadvice! +marginalia--anotate-local-file-colorful (cand)
+;;     "Just a more colourful version of `marginalia--anotate-local-file'."
+;;     :override #'marginalia--annotate-local-file
+;;     (when-let (attrs (file-attributes (substitute-in-file-name
+;;                                        (marginalia--full-candidate cand))
+;;                                       'integer))
+;;       (marginalia--fields
+;;        ((marginalia--file-owner attrs)
+;;         :width 12 :face 'marginalia-file-owner)
+;;        ((marginalia--file-modes attrs))
+;;        ((+marginalia-file-size-colorful (file-attribute-size attrs))
+;;         :width 7)
+;;        ((+marginalia--time-colorful (file-attribute-modification-time attrs))
+;;         :width 12))))
 
-  (defun +marginalia--time-colorful (time)
-    (let* ((seconds (float-time (time-subtract (current-time) time)))
-           (color (doom-blend
-                   (face-attribute 'marginalia-date :foreground nil t)
-                   (face-attribute 'marginalia-documentation :foreground nil t)
-                   (/ 1.0 (log (+ 3 (/ (+ 1 seconds) 345600.0)))))))
-      ;; 1 - log(3 + 1/(days + 1)) % grey
-      (propertize (marginalia--time time) 'face (list :foreground color))))
+;;   (defun +marginalia--time-colorful (time)
+;;     (let* ((seconds (float-time (time-subtract (current-time) time)))
+;;            (color (doom-blend
+;;                    (face-attribute 'marginalia-date :foreground nil t)
+;;                    (face-attribute 'marginalia-documentation :foreground nil t)
+;;                    (/ 1.0 (log (+ 3 (/ (+ 1 seconds) 345600.0)))))))
+;;       ;; 1 - log(3 + 1/(days + 1)) % grey
+;;       (propertize (marginalia--time time) 'face (list :foreground color))))
 
-  (defun +marginalia-file-size-colorful (size)
-    (let* ((size-index (/ (log (+ 1 size)) 7.0 10.0))
-           (color (if (< size-index 10000000) ; 10m
-                      (doom-blend 'orange 'green size-index)
-                    (doom-blend 'red 'orange (- size-index 1)))))
-      (propertize (file-size-human-readable size) 'face (list :foreground color)))))
+;;   (defun +marginalia-file-size-colorful (size)
+;;     (let* ((size-index (/ (log (+ 1 size)) 7.0 10.0))
+;;            (color (if (< size-index 10000000) ; 10m
+;;                       (doom-blend 'orange 'green size-index)
+;;                     (doom-blend 'red 'orange (- size-index 1)))))
+;;       (propertize (file-size-human-readable size) 'face (list :foreground color)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info pages (from https://github.com/elken/doom#info-pages)
@@ -394,7 +496,7 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (after! doom-modeline
   (setq all-the-icons-scale-factor 1.1
-        auto-revert-check-vc-info t
+        ;; auto-revert-check-vc-info t
         doom-modeline-major-mode-icon (display-graphic-p)
         doom-modeline-major-mode-color-icon (display-graphic-p)
         doom-modeline-buffer-file-name-style 'relative-to-project
@@ -404,7 +506,15 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   (remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
   (doom-modeline-def-modeline 'main
     '(bar modals workspace-name window-number persp-name buffer-position selection-info buffer-info matches remote-host debug vcs matches)
-    '(github mu4e grip gnus checker misc-info repl lsp " ")))
+    '(github mu4e grip gnus misc-info repl lsp " ")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Markdown (+grip)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package grip-mode
+  :ensure t
+  :bind (:map markdown-mode-command-map
+              ("g" . grip-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flycheck (Word spelling checker)
@@ -477,9 +587,9 @@ The point should be on the top-level function name."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tb-dev.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package! tb-dev
-  :defer t
-  :after projectile)
+;(use-package! tb-dev
+;  :defer t
+;  :after projectile)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.

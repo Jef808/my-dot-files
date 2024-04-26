@@ -20,15 +20,30 @@
 
 (package! sly-quicklisp)
 
+(package! lsp-tailwindcss)
+
+(package! lsp-pyright)
+
+(package! know-your-http-well
+  :recipe (:host github :repo "for-GET/know-your-http-well"
+                 :files ("emacs/*.el")))
+
 ;(package! ob-napkin)
 ;(package! ob-http)
 ;(package! ob-restclient)
 (package! verb)
 
+(package! ox-json)
+
+(package! ox-gfm)
+
+(package! emacs-emojify)
+
 ;(package! conda)
 (package! nvm)
 
 (package! info-colors)
+
 ;(package! auto-yasnippet)
 
 ;(package! log4e)
@@ -46,10 +61,17 @@
 ;;           :pin "bbc60f68ac190f02da8a100b6fb67cf1c27c53ab"
 ;;           :recipe (:host github :repo "magit/with-editor"))
 
-;; (package! copilot
-;;   :recipe (:host github :repo "zerolfx/copilot.el" :files  ("*.el" "dist")))
+(package! copilot
+  :recipe (:host github :repo "zerolfx/copilot.el" :files  ("*.el" "dist")))
 
-(package! gptel)
+(package! emacs-gif-screencast
+  :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
+
+
+(package! graphviz-dot-mode)
+
+;; (package! ellm
+;;   :recipe (:host github :repo "Jef808/emacs-llm" :files ("ellm/ellm.el")))
 
 ;; ActivityWatch collector
 ;(package! activity-watch-mode)
