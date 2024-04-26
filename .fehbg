@@ -1,2 +1,2 @@
 #!/bin/sh
-feh --no-fehbg --bg-scale '/home/jfa/.local/share/backgrounds/arch-linux.png' 
+feh --no-fehbg --bg-scale '/home/jfa/.local/share/backgrounds/arch-linux.jpg' 
