@@ -4,12 +4,12 @@
 ;; Top keybinds        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Emacs Everywhere
-(defcommand emacs-everywhere () ()
-  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
-(define-key *root-map* (kbd "E") "emacs-everywhere")
+;(defcommand emacs-everywhere () ()
+;  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
+;(define-key *root-map* (kbd "E") "emacs-everywhere")
 
 ;; Execute shell commands using rofi
-(define-key *root-map* (kbd "!") "exec rofi -show run");; -font 'Fira Code -18'")
+(define-key *root-map* (kbd "!") "exec rofi -show run -font 'Fira Code -18'")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Leader Map keybindings ;;
@@ -33,22 +33,35 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Launch map             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar *exec-emacs* "exec emacsclient -c -a emacs --no-wait")
-(defvar *exec-chrome-personal* "exec systemd-run --user --unit=chrome-personal /usr/bin/google-chrome-stable --user-data-dir=/home/jfa/.config/google-chrome --profile-directory=Default")
-(defvar *exec-chrome-work* "exec systemd-run --user --unit=chrome-work /usr/bin/google-chrome-stable --user-data-dir=/home/jfa/.config/google-chrome --profile-directory='Profile 3' http://localhost:5173")
-(defvar *exec-firefox* "exec systemd-run --user --unit=firefox /usr/bin/firefox")
-(defvar *exec-rofi* "exec rofi -show drun -font 'Fira Code -18'")
-(defvar *exec-rofipass* "exec rofi-pass -show drun -font 'Fira Code -18'")
+(defvar *chrome-window-count* 0
+  "Counter for Chrome windows launched.")
+
+(defun make-chrome-cmd (new-window)
+  "Return a command to launch Chrome with a new window or not."
+  (let ((cmd (format nil "exec systemd-run --user --unit=chrome~A /usr/bin/google-chrome-stable ~A --remote-debugging-port=9222 --no-first-run --user-data-dir=/home/jfa/.config/google-chrome --profile-directory=Default"
+                     *chrome-window-count*
+                     (if new-window "--new-window"))))
+    (incf *chrome-window-count*)
+    cmd))
+
+(defvar *exec-emacs*              "exec emacs --init-directory=/home/jfa/.config/emacs")
+(defvar *exec-chrome*             #.(make-chrome-cmd nil))
+(defvar *exec-chrome-nw*          #.(make-chrome-cmd t))
+(defvar *exec-firefox*            "exec systemd-run --user --unit=firefox /usr/bin/firefox")
+(defvar *exec-rofi*               "exec rofi -show drun -font 'Fira Code -18'")
+(defvar *exec-rofipass*           "exec rofi-pass -show drun -font 'Fira Code -18'")
+(defvar *exec-rofi-window*        "exec rofi -show window -font 'Fira Code -18'")
 
 (defvar *launch-map*
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "b") "exec qutebrowser")
-    (define-key m (kbd "g") *exec-chrome-personal*)
-    (define-key m (kbd "G") *exec-chrome-work*)
+    (define-key m (kbd "g") *exec-chrome*)
+    (define-key m (kbd "G") *exec-chrome-nw*)
     (define-key m (kbd "f") *exec-firefox*)
     (define-key m (kbd "e") *exec-emacs*)
     (define-key m (kbd "k") "exec kitty")
     (define-key m (kbd "r") *exec-rofi*)
+    (define-key m (kbd "w") *exec-rofi-window*)
     (define-key m (kbd "p") *exec-rofipass*)
     m
   ))
@@ -70,7 +83,7 @@
 ;; Redefine keys to behave emacs-like when focused window
 ;; has class firefox or Chrome (redirects firefox's keys)
 (define-remapped-keys
-    '(("firefox|Google-chrome"
+    '(("firefox|Google-chrome|Chromium"
      ("C-n"   . "Down")
      ("C-p"   . "Up")
      ("C-f"   . "Right")
@@ -89,6 +102,7 @@
      ("M-f"   . "C-Right")
      ("M-b"   . "C-Left")
      ("C-M-k" . "C-w")
+     ("C-l"   . "F6")
      ("C-k"   . "C-w"))))
 
 ;; If circumventing the above remapping is needed

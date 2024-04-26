@@ -32,7 +32,7 @@ fi
 
 # Symlink to /usr/lib/ssh/x11-ssh-askpass
 # export SSH_ASKPASS=ssh-askpass
-#setxkbmap 'us,ca' -option ctrl:swapcaps -option grp:win_space
+setxkbmap 'us,ca' -option ctrl:swapcaps -option grp:win_space
 
 #setxkbmap -option ctrl:swapcaps
 
@@ -45,7 +45,9 @@ fi
 
 #mkdir -p $XDG_DATA_HOME/stumpwm
 
-exec sbcl --load /home/jfa/.stumpwmstarter
+#exec stumpwm
+
+#exec sbcl --load /home/jfa/.stumpwmstarter
 #> /home/jfa/.local/share/stumpwm/stumpwm.log
 # exec /usr/bin/stumpwm
 # exec /usr/local/bin/stumpwm
@@ -60,6 +62,6 @@ exec sbcl --load /home/jfa/.stumpwmstarter
 # in my .zshrc file.
 # (running 'sx' alone would give file permission error
 # coming from the .xinitrc script)
-#exec sbcl --load $HOME/.stumpwmstarter
+exec /usr/local/bin/sbcl --load $HOME/.stumpwmstarter
 #exec stumpwm
 #/home/jfa/quicklisp/dists/quicklisp/software/stumpwm-20231021-git/stumpwm > /home/jfa/.local/share/stumpwm/stumpwm.log 2>&1

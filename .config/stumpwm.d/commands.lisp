@@ -1,9 +1,9 @@
 ;; Screen layouts
 (defcommand hdmi-on () ()
-  (run-shell-command "hdmi-on"))
+ (exec "/home/jfa/.screenlayout/hdmi-on.sh"))
 
 (defcommand hdmi-off () ()
-  (run-shell-command "hdmi-off"))
+  (exec "/home/jfa/.screenlayout/hdmi-off.sh"))
 
 (defcommand screenshot (window)
   ((:string "Enter the window name: "))

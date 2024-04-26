@@ -6,7 +6,7 @@
 (in-package :stumpwm)
 
 (defvar *config-dir* "/home/jfa/.config/stumpwm.d/")
-(init-load-path "/home/jfa/.config/stumpwm.d/modules/")
+(init-load-path "/home/jfa/.config/stumpwm.d/stumpwm-contrib/")
 (setf *data-dir* "/home/jfa/.local/share/stumpwm/")
 
 (load (concatenate 'string *config-dir* "init-daemons.lisp"))
@@ -14,14 +14,14 @@
 (load (concatenate 'string *config-dir* "keybindings.lisp"))
 (load (concatenate 'string *config-dir* "commands.lisp"))
 
-(load-module "pinentry")
+;;(load-module "pinentry")
 
 ;; emacs everywhere
 ;(defcommand emacs-everywhere () ()
 ;  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
 ;(define-key *root-map* (kbd "E") "emacs-everywhere")
 
-(run-shell-command "hdmi-on")
+(run-shell-command "/home/jfa/.screenlayout/hdmi-on.sh")
 
 ;; Message window font
 ;; NOTE: Doesn't use fontconfig, need to make sure Xorg knows the font
@@ -31,8 +31,11 @@
 ;(ql:quickload :clx-truetype)
 ;(load-module "ttf-fonts")
 ;(set-font "-misc-jetbrains mono-medium-r-normal--0-0-0-0-m-0-*")
-(set-font "-misc-fira mono-medium-*-*-*-*-*-*-*-*-*-*")
+(set-font "-misc-fira mono-normal-*-*-*-*-*-*-*-*-*-*")
 ;(set-font "-xos4-terminus-bold-r-normal-*-18-*-*-*-*-*-*-*")
+
+;; Focus whatever window you click
+(setf *mouse-focus-policy* :click)
 
 ;; Input and Message window placements
 (setf *message-window-gravity* :top)
@@ -48,8 +51,15 @@
 (setf *mode-line-border-width* 3)
 
 ;; Enable modeline
-(enable-mode-line (stumpwm:current-screen) (stumpwm:current-head) t)
+(defun enable-mode-line-on-all-screens ()
+  "Enable the mode line on all screens."
+  (dolist (screen *screen-list*)
+    (dolist (head (screen-heads screen))
+      (enable-mode-line screen head t))))
 
+(enable-mode-line-on-all-screens)
+;; (unless (head-mode-line (curent-head))
+;;   (toggle-mode-line (current-screen) (current-head)))
 
 ;; Load Slynk
 ;(require :slynk)
