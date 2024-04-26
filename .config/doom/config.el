@@ -16,6 +16,19 @@
 (setq scroll-error-top-bottom t
       next-screen-context-lines 4)
 
+(setq tab-width 4)
+
+;; Disable customization
+(setq custom-file nil)
+
+;; Disable the mouse
+(mouse-avoidance-mode 'cat-and-mouse)
+(setq mouse-wheel-mode nil)
+(define-key global-map [mouse-2] 'ignore)
+(define-key global-map [mouse-3] 'ignore)
+(define-key global-map [down-mouse-2] 'ignore)
+(define-key global-map [down-mouse-3] 'ignore)
+
 (setf (alist-get "\\.h\\'" auto-mode-alist nil nil #'equal) 'c-or-c++-ts-mode
       (alist-get "\\.ts\\'" auto-mode-alist nil nil #'equal) 'typescript-ts-mode
       (alist-get "\\.tsx\\'" auto-mode-alist nil nil #'equal) 'tsx-ts-mode
@@ -33,7 +46,6 @@
 (setq inhibit-x-resources nil)
 (setq browse-url-browser-function 'browse-url-chrome)
 (setq browse-url-chrome-program "/usr/bin/google-chrome-stable")
-
 
 
 ;; Map \\[execute-extended-command] to C-c C-m and C-x C-m
@@ -134,14 +146,6 @@ You are very cautious when providing information or making a claim, thus always 
 thorough explanations and/or justifications when providing non-obvious answers.
 Always answer with a request for clarifications when you are not fully confident on how to address a user's query."
   "The system message for asking questions about emacs lisp in ellm.")
-
-;; (defun prompt-gpt (command)
-;;   ;; Use gpt-4 to transform COMMAND into an s-expression
-;;   (with-output-to-temp-buffer "*Command Output*"
-;;     (shell-command command (current-buffer))
-;;     (pop-to-buffer "*Command Output*")
-;;     (emacs-lisp-mode)
-;;     (goto-char (point-max))))
 
 ;; (defun my-extract-python-function ()
 ;;   "Extract the Python function definition at the current point."
@@ -358,7 +362,6 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;; org export
 ;; https://github.com/fniessen/org-html-themes
 ;; Use #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-
 
 ;; (setq! org-latex-listings 'minted
 ;;        org-latex-packages-alist '(("" "minted"))
