@@ -17,11 +17,26 @@ gpg-connect-agent updatestartuptty /bye >/dev/null
 export JAVA_HOME=/usr/lib/jvm/default
 
 ######################################################
+# NVM # See github.com/lukechilds/zsh-nvm
+######################################################
+export NVM_DIR="${XDG_CONFIG_HOME}/nvm"
+source $NVM_DIR/nvm.sh
+#export NVM_EXEC_DIR="${NVM_DIR}/
+#export NVM_LAZY_LOAD=true
+#export NVM_LAZY_LOAD_EXTRA_COMMANDS=('emacs', 'emacsclient')
+#export NVM_NO_USE=true
+
+######################################################
 # Local variables
 ######################################################
 local zsh_dir=$HOME/.zsh
 
+######################################################
+# Plugins
+######################################################
 source $zsh_dir/index.zsh
+autoload -Uz add-zsh-hook
+autoload -Uz compinit && compinit
 
 ######################################################
 # Zsh options
@@ -41,18 +56,19 @@ alias pacqdt='pacman -Qdt'
 alias pstree='pstree -hgT --color=age'
 alias dmenu='rofi -dmenu'
 alias emacd='emacsclient -c'
+alias emacs='emacs --init-directory=${XDG_CONFIG_HOME}/emacs'
 alias chrome='systemd-run --user --unit=chrome google-chrome-stable'
 alias xclip='kitten clipboard'
-alias l='ls -latr'
+alias l='ls -lstrh'
 
 ######################################################
 # Suffix aliases
 ######################################################
-alias -s el=emacd
+alias -s el=emacs
 alias -s html=google-chrome-stable
-alias -s {pdf,djvu}=emacd
-alias -s {h,hpp,cpp}=emacd
-alias -s md=emacd
+alias -s {pdf,djvu}=emacs
+alias -s {h,hpp,cpp}=emacs
+alias -s md=emacs
 
 ######################################################
 # journalctl
@@ -63,13 +79,13 @@ export SYSTEMD_LESS=FRXMK journalctl
 #####################################################
 # Fish-like auto-suggestion
 ######################################################
-source $zsh_dir/zsh-autosuggestions.zsh
+#source $zsh_dir/zsh-autosuggestions.zsh
 
 ######################################################
 # Managing dotfiles
 ######################################################
-alias config="/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME"
-alias configsecure="/usr/bin/git --git-dir=$HOME/.cfg-secure/ --work-tree=$HOME"
+#alias config="/usr/bin/git --git-dir=$HOME/.config/my-dot-files"
+#alias configsecure="/usr/bin/git --git-dir=$HOME/.cfg-secure/ --work-tree=$HOME"
 
 ######################################################
 # Gitignore.io api
@@ -81,7 +97,7 @@ function gi() { curl -sLw n https://www.toptal.com/developers/gitignore/api/$@ ;
 ######################################################
 # Because of the above, sudo nano <file> will then execute
 # nano with the local config file
-alias nano="nano --rcfile ~/.nanorc"
+alias nano="nano --rcfile ~/.config/nano/nanorc"
 
 ######################################################
 # Ideas from the grml's /etc/zshrc
@@ -92,28 +108,28 @@ export WORDCHARS=${WORDCHARS/\/}
 ## warning if file exists ('cat /dev/null > ~/.zshrc')
 setopt NO_clobber
 ## don't warn me about bg processes when exiting
-setopt nocheckjobs
+#setopt nocheckjobs
 
 ######################################################
 # Histdb configuration
 ######################################################
-source $zsh_dir/zsh-histdb/sqlite-history.zsh
+#source $zsh_dir/zsh-histdb/sqlite-history.zsh
 unsetopt HIST_IGNORE_SPACE
-autoload -Uz add-zsh-hook
+#autoload -Uz add-zsh-hook
 # bindkey '^r' _histdb-isearch
 
 ######################################################
 # fzf configuration
 ######################################################
-source $zsh_dir/fzf_key-bindings.zsh
-export FZF_DEFAULT_COMMAND='fd --type f'
-export FZF_DEFAULT_OPTS="--height=40% --preview='bat {}' --preview-window=right:60%:wrap"
-# alias fzf="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+#source $zsh_dir/fzf_key-bindings.zsh
+#$export FZF_DEFAULT_COMMAND='fd --type f'
+#export FZF_DEFAULT_OPTS="--height=40% --preview='bat {}' --preview-window=right:60%:wrap"
+export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
 
 ######################################################
 # Clipboard
 ######################################################
-export CM_LAUNCHER="fzf"
+#export CM_LAUNCHER="fzf"
 
 #####################################################
 # Direnv support
@@ -125,20 +141,27 @@ eval "$(direnv hook zsh)"
 #######################################################
 [[ "$INSIDE_EMACS" = 'vterm' ]] && source '~/.zsh/vterm.zsh'
 
-######################################################
-# NVM # See github.com/lukechilds/zsh-nvm
-######################################################
-export NVM_DIR="${XDG_CONFIG_HOME}/nvm"
-export NVM_LAZY_LOAD=true
-export NVM_LAZY_LOAD_EXTRA_COMMANDS=('emacs', 'emacsclient')
-export NVM_NO_USE=true
-source "${zsh_dir}/zsh-nvm/zsh-nvm.plugin.zsh"
+########################################################
+# Nano bots
+#######################################################
+export NANO_BOTS_CARTRIDGES_PATH="$HOME/.local/share/nanobots"
+export NANO_BOTS_STATE_PATH="$HOME/.local/state/nanobots"
 
 ########################################################
 # Conda
 #######################################################
-#source "$zsh_dir/condarc.zsh"
+setopt PROMPT_SUBST
 
+show_virtual_env() {
+    if [[ $(pyenv local  2>/dev/null) == *"conda"* ]]; then
+        VENV=$CONDA_DEFAULT_ENV
+    else
+        VENV=$VIRTUAL_ENV
+    fi
+    if [[ -n $VENV && -n "$DIRENV_DIR" ]]; then
+        echo "($(basename $VENV))"
+    fi
+}
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -156,6 +179,15 @@ unset __conda_setup
 #unfunction load_conda
 # >>> conda initialize >>>
 
-if [ -f "/opt/miniconda3/etc/profile.d/mamba.sh" ]; then
-    . "/opt/miniconda3/etc/profile.d/mamba.sh"
-fi
+#if [ -f "/opt/miniconda3/etc/profile.d/mamba.sh" ]; then
+#    . "/opt/miniconda3/etc/profile.d/mamba.sh"
+#fi
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/opt/gcloud-cli/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/gcloud-cli/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/opt/gcloud-cli/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/gcloud-cli/google-cloud-sdk/completion.zsh.inc'; fi

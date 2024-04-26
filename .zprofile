@@ -18,7 +18,7 @@ export DOOMDIR="$HOME/.config/doom"
 ######################################################
 # Path
 ######################################################
-export PATH=$HOME/.local/bin:$EMACSDIR/bin:$PATH
+export PATH=$HOME/.local/bin:$EMACSDIR/bin:/usr/local/bin:$PATH
 
 export SBCL_HOME=/usr/local/lib/sbcl
 TCLLIBPATH=$HOME/.local/share/tk-themes
