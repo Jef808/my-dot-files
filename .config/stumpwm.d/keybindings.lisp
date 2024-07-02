@@ -51,6 +51,7 @@
 (defvar *exec-rofi*               "exec rofi -show drun -font 'Fira Code -18'")
 (defvar *exec-rofipass*           "exec rofi-pass -show drun -font 'Fira Code -18'")
 (defvar *exec-rofi-window*        "exec rofi -show window -font 'Fira Code -18'")
+(defvar *exec-emacs-everywhere*   "exec emacsclient --eval '(emacs-everywhere)'")
 
 (defvar *launch-map*
   (let ((m (make-sparse-keymap)))
@@ -59,6 +60,7 @@
     (define-key m (kbd "G") *exec-chrome-nw*)
     (define-key m (kbd "f") *exec-firefox*)
     (define-key m (kbd "e") *exec-emacs*)
+    (define-key m (kbd "c") *exec-emacs-everywhere*)
     (define-key m (kbd "k") "exec kitty")
     (define-key m (kbd "r") *exec-rofi*)
     (define-key m (kbd "w") *exec-rofi-window*)
@@ -66,6 +68,18 @@
     m
   ))
 (define-key *root-map* (kbd "SPC") '*launch-map*)
+
+(defun show-launch-menu ()
+  "Show the launch menu."
+  (let* ((options (mapcar (lambda (binding)
+                            (cons (key-to-string (first binding))
+                                  (second binding)))
+                          (kmap-alist *launch-map*)))
+         (selection (select-from-menu (current-screen)
+                                      options
+                                      "Launch: ")))
+    (when selection
+      (eval-command ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Help (describe) map ;;

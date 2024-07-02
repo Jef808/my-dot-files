@@ -1,1 +1,1 @@
-/home/jfa/.config/stumpwm.d
+/home/jfa/.config/my-dot-files/.config/stumpwm.d/

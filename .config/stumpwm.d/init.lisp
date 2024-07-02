@@ -5,14 +5,27 @@
 (require :stumpwm)
 (in-package :stumpwm)
 
-(defvar *config-dir* "/home/jfa/.config/stumpwm.d/")
+(defvar *config-dir* "/home/jfa/.config/stumpwm.d/"
+  "The directory where the stumpwm configuration files are stored.")
 (init-load-path "/home/jfa/.config/stumpwm.d/stumpwm-contrib/")
 (setf *data-dir* "/home/jfa/.local/share/stumpwm/")
 
-(load (concatenate 'string *config-dir* "init-daemons.lisp"))
 (load (concatenate 'string *config-dir* "xinit.lisp"))
-(load (concatenate 'string *config-dir* "keybindings.lisp"))
+(load (concatenate 'string *config-dir* "init-daemons.lisp"))
 (load (concatenate 'string *config-dir* "commands.lisp"))
+(load (concatenate 'string *config-dir* "keybindings.lisp"))
+(load (concatenate 'string *config-dir* "modeline.lisp"))
+
+(load-module "pass")
+
+(load-module "stump-volume-control")
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "volume-down")
+(define-key *top-map* (kbd "XF86AudioMute") "volume-toggle-mute")
+
+(load-module "clipboard-history")
+(define-key *root-map* (kbd "C-y") "show-clipboard-history")
+(clipboard-history:start-clipboard-manager)
 
 ;;(load-module "pinentry")
 
@@ -20,8 +33,6 @@
 ;(defcommand emacs-everywhere () ()
 ;  (run-shell-command "emacsclient --eval '(emacs-everywhere)'"))
 ;(define-key *root-map* (kbd "E") "emacs-everywhere")
-
-(run-shell-command "/home/jfa/.screenlayout/hdmi-on.sh")
 
 ;; Message window font
 ;; NOTE: Doesn't use fontconfig, need to make sure Xorg knows the font
@@ -42,51 +53,14 @@
 (setf *message-window-input-gravity* :top)
 (setf *input-window-gravity* :center)
 
-;; Modeline formatting
-(setf *mode-line-pad-x* 5
-      *mode-line-pad-y* 8)
-(setf *window-format* "%m%n%s%c")
-(setf *screen-mode-line-format*
-      "[^B%n^b] %v^>%d   ")
-(setf *mode-line-border-width* 3)
-
-;; Enable modeline
-(defun enable-mode-line-on-all-screens ()
-  "Enable the mode line on all screens."
-  (dolist (screen *screen-list*)
-    (dolist (head (screen-heads screen))
-      (enable-mode-line screen head t))))
-
 (enable-mode-line-on-all-screens)
+
 ;; (unless (head-mode-line (curent-head))
 ;;   (toggle-mode-line (current-screen) (current-head)))
 
 ;; Load Slynk
-;(require :slynk)
-;(require :uiop)
-;(require :slynk)
-;(defun run (command)
-;  (sb-thread:make-thread
-;   (lambda ()
-;     (let ((exit-code (uiop:wait-process (uiop:launch-program command))))
-;       (zerop exit-code)))
-;   :name
-;   (uiop:strcat "Waiting for '" command "'")))
-
-;; (defun notify-send (msg &rest args)
-;;   (run (format nil "notify-send ~{~a~^ ~}" (cons msg args))))
-
-;; (defvar *slynk-default-port* 4005)
-;; (defcommand slynk-start (port) ((:number "Port number: "))
-;;   Start a slynk server manually from the parent sbcl process.
-;;   Can then connect to it using `sly-connect' in emacs.
-;;  (setq *slynkthread* (sb-thread:make-thread
-;;                       (lambda ()
-;;                          (slynk:create-server :port (or port *slynk-default-port*) :dont-close t)
-;;                           )))
-;;   nil)
-;(defcommand slynk-stop () ((:string "Port number: "))
-;  ())
+(ql:quickload :slynk)
+(slynk:create-server :dont-close t)
 
 
 

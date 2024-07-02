@@ -5,6 +5,10 @@
 ;; (package! tb-dev
 ;;   :recipe (:local-repo "~/projects/elisp/tb-dev"))
 
+(package! ellm
+  :recipe (:local-repo "~/projects/ellm"
+           :files ("ellm.el" "server/server.js")))
+
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
           :files ("google-c-style.el")))
@@ -12,6 +16,9 @@
 ;(package! vue-mode)
 ;(package! vue-html-mode)
 ;(package! prettier-js)
+
+(package! treesit-auto)
+
 (package! add-node-modules-path)
 
 (package! dap-mode :disable t)
@@ -61,8 +68,14 @@
 ;;           :pin "bbc60f68ac190f02da8a100b6fb67cf1c27c53ab"
 ;;           :recipe (:host github :repo "magit/with-editor"))
 
+;; (package! copilot
+;;   :recipe (:host github :repo "zerolfx/copilot.el" :files  ("*.el" "dist")))
 (package! copilot
-  :recipe (:host github :repo "zerolfx/copilot.el" :files  ("*.el" "dist")))
+  :recipe (:host github :repo "copilot-emacs/copilot.el"
+                 :files ("*.el")))
+
+(package! codeium :recipe
+  (:host github :repo "Exafunction/codeium.el"))
 
 (package! emacs-gif-screencast
   :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
@@ -70,8 +83,28 @@
 
 (package! graphviz-dot-mode)
 
-;; (package! ellm
-;;   :recipe (:host github :repo "Jef808/emacs-llm" :files ("ellm/ellm.el")))
+
+(package! system-packages)
+
+(package! google-this)
+
+(package! git-undo
+  :recipe (:host github :repo "jwiegley/git-undo-el"))
+
+
+(package! org-download)
+
+(package! org-appear)
+
+(package! org-protocol-capture-html
+  :recipe (:host github :repo "alphapapa/org-protocol-capture-html"))
+
+(package! fancy-narrow)
+
+(package! project-explorer
+  :recipe (:host github :repo "sabof/project-explorer"))
+
+;(package! khoj)
 
 ;; ActivityWatch collector
 ;(package! activity-watch-mode)

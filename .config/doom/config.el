@@ -1,17 +1,16 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
+(require 'dash)
 
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com")
 
 ;(load! "/home/jfa/projects/echo-crafter/echo-crafter.el")
 
-;; Path variables
-;; (setq! user-formatting-dir (file-name-as-directory (expand-file-name "editor/formatting" doom-user-dir))
-;;        user-file-templates-dir (file-name-as-directory (expand-file-name "editor/file_templates" doom-user-dir))
-;;        user-snippets-dir (file-name-as-directory (expand-file-name "snippets" doom-user-dir)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Global configurations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq global-font-lock-mode t)
-
 (setq display-line-numbers-type t)
 (setq scroll-error-top-bottom t
       next-screen-context-lines 4)
@@ -29,18 +28,24 @@
 (define-key global-map [down-mouse-2] 'ignore)
 (define-key global-map [down-mouse-3] 'ignore)
 
-(setf (alist-get "\\.h\\'" auto-mode-alist nil nil #'equal) 'c-or-c++-ts-mode
-      (alist-get "\\.ts\\'" auto-mode-alist nil nil #'equal) 'typescript-ts-mode
-      (alist-get "\\.tsx\\'" auto-mode-alist nil nil #'equal) 'tsx-ts-mode
-      (alist-get "\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" auto-mode-alist nil nil #'equal) 'c++-ts-mode
-      (alist-get "\\.\\(cc\\|hh\\)\\'" auto-mode-alist nil nil #'equal) 'c++-ts-mode
-      (alist-get "\\.py\\'" auto-mode-alist nil nil #'equal) 'python-ts-mode
-      (alist-get "\\.css\\'" auto-mode-alist nil nil #'equal) 'css-ts-mode
-      (alist-get "\\.json\\'" auto-mode-alist nil nil #'equal) 'json-ts-mode
-      (alist-get "\\.cmake\\'" auto-mode-alist nil nil #'equal) 'cmake-ts-mode
-      (alist-get "\\CMakeLists\\.txt\\'" auto-mode-alist nil nil #'equal) 'cmake-ts-mode
-      (alist-get "\\.\\(e?ya?\\|ra\\)ml\\'" auto-mode-alist nil nil #'equal) 'yaml-ts-mode
-      (alist-get "\\.rs\\'" auto-mode-alist nil nil #'equal) 'rust-ts-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Custom advices
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun my-mark-defun-fix (orig-fun &rest args)
+  "Wrapper for mark-defun to exclude the line above the current defun."
+  (apply orig-fun args)
+  (goto-char (mark))
+  (beginning-of-defun))
+
+(advice-add 'mark-defun :around #'my-mark-defun-fix)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Appearance
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq! doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'light)
+       doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
+       doom-theme 'doom-dracula)
 
 (setq envrc-direnv-executable "/usr/bin/direnv")
 (setq inhibit-x-resources nil)
@@ -60,18 +65,25 @@
 (global-set-key (kbd "C-x C-k") 'kill-region)
 
 
+(mapc (lambda (e) (set-tree-sitter-lang! (car e) (cdr e)))
+      `((c++-ts-mode . h)
+        (c++-ts-mode . cpp)
+        (typescript-ts-mode . typescript)
+        (tsx-ts-mode . typescript)
+        (python-ts-mode . python)
+        (css-ts-mode . css)
+        (json-ts-mode . json)
+        (yaml-ts-mode . yaml)
+        (rust-ts-mode . rust)))
 
 ;; Asynchronously highlights both files and directories based
 ;; on their git status
-(setq +treemacs-git-mode 'deferred)
+;(setq +treemacs-git-mode 'deferred)
 
 ;; (after! python-mode
 ;;   :config
 ;;   (setq flycheck-python-pyright-executable "/usr/bin/pyright"))
 
-
-
-(setq +tree-sitter-hl-enabled-modes t)
 ;; (add-hook!
 ;;  :append
 ;;  'doom-after-init-hook '(global-flycheck-mode,
@@ -88,7 +100,7 @@
 ;;                          global-goto-address-mode
 ;;                          ))
 
-;;(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; restclient http helpers ;;
@@ -108,46 +120,103 @@
 ;; Github Copilot
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; accept completion from copilot and fallback to company
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+;; (use-package! copilot
+;;   :hook '(prog-mode copilot-mode)
+;;   :bind '(:map copilot-completion-map
+;;           ("<tab>" . 'copilot-accept-completion)
+;;           ("TAB" . 'copilot-accept-completion)
+;;           ("C-TAB" . 'copilot-accept-completion-by-word)
+;;           ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Codeium
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package! codeium
+  :init
+  ;; enable in prog-mode
+  (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
+  ;(add-hook! prog-mode-hook (setq-local completion-at-point-functions '(codeium-completion-at-point)))
+  ;; codeium-completion-at-point is autoloaded, but you can
+  ;; optionally set a timer, which might speed up things as the
+  ;; codeium local language server takes ~0.2s to start up
+  (add-hook! emacs-start-hook (run-with-timer 0.1 nil #'codeium-init))
+  (setq use-dialog-box nil)
+  (setq codeium-mode-enable
+        (lambda (api) (not (memq api '(CancelRequest Heartbeat AcceptCompletion)))))
+  (add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
+  (setq codeium-api-enabled
+        (lambda (api)
+          (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
+  (defun my-codeium/document/text ()
+    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
+  (defun my-codeium/document/cursor_offset ()
+    (codeium-utf8-byte-length
+     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
+  (setq codeium/document/text 'my-codeium/document/text)
+  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
+
+(after! company
+  :defer 0.1
+  :config
+  (setq-default
+   company-idle-delay 0.05
+   company-require-match nil
+   company-minimum-prefix-length 0
+
+   ;; get only previews
+   company-frontends '(company-preview-frontend)
+   ;; also get a dropdown
+   ;; company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
+   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Communicate with LLMs using ellm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load (expand-file-name "~/projects/emacs/ellm/ellm.el"))
+;; (require 'ellm)
+;; (global-ellm-mode)
+
+(defun get-ellm-api-key-from-password-store ()
+  "Setup the API keys for the ellm package."
+  (password-store-get (format "%s/ellm_api_key" (symbol-name ellm-provider))))
 
 (defun get-openai-api-key ()
-  "Get the openai api key from the password store."
-  (password-store-get "openai/emacs_api_key"))
+  "Get the OpenAI API key from the password store."
+  (password-store-get "openai/ellm_api_key"))
 (defun get-anthropic-api-key ()
-  "Get the anthropic api key from the password store."
-  (password-store-get "anthropic/emacs_api_key"))
+  "Get the OpenAI API key from the password store."
+  (password-store-get "anthropic/ellm_api_key"))
 (defun get-groq-api-key ()
-  "Get the groq api key from the password store."
-  (password-store-get "groq/ellm_api_key"))
+  "Get the OpenAI API key from the password store."
+ (password-store-get "groq/ellm_api_key"))
+(defun get-mistral-api-key ()
+  "Get the OpenAI API key from the password store."
+  (password-store-get "mistral/ellm_api_key"))
 
-(load "~/projects/emacs/ellm/ellm.el")
-(require 'ellm)
-(setq ellm-get-openai-api-key #'get-openai-api-key
-      ellm-get-anthropic-api-key #'get-anthropic-api-key
-      ellm-get-groq-api-key #'get-groq-api-key)
-(global-ellm-mode)
+(defun my-ellm-password-store-path (provider)
+  "Get the password store path for the provider."
+  (format "%s/ellm_api_key" (symbol-name provider)))
 
-(defvar ellm-system-message-elisp "You are a useful emacs-integrated general assistant, expert in writing emacs-lisp and \
-in the technicalities of the emacs packages ecosystem in general.
-Your goal is to provide emacs-lisp code snippets, explanations, and general guidance to the user, \
-according to their needs regarding emacs-lisp programming.
-When the user provides CONTEXT, you should use it to provide more accurate and relevant answers.
-You are very cautious when providing information or making a claim, thus always accompanying them with \
-thorough explanations and/or justifications when providing non-obvious answers.
-Always answer with a request for clarifications when you are not fully confident on how to address a user's query."
-  "The system message for asking questions about emacs lisp in ellm.")
+(use-package! ellm
+  :custom
+  (ellm-password-store-path-by-provider #'my-ellm-password-store-path)
+  (ellm-get-api-key #'ellm-get-api-key-from-password-store)
+  :config
+  (global-ellm-mode)
+  (ellm-start-server)
+  (ellm--setup-persistance))
 
-;; (defun my-extract-python-function ()
+;; (defvar ellm-system-message-elisp "You are a useful emacs-integrated general assistant, expert in writing emacs-lisp and \
+;; in the technicalities of the emacs packages ecosystem in general.
+;; Your goal is to provide emacs-lisp code snippets, explanations, and general guidance to the user, \
+;; according to their needs regarding emacs-lisp programming.
+;; When the user provides CONTEXT, you should use it to provide more accurate and relevant answers.
+;; You are very cautious when providing information or making a claim, thus always accompanying them with \
+;; thorough explanations and/or justifications when providing non-obvious answers.
+;; Always answer with a request for clarifications when you are not fully confident on how to address a user's query."
+;;   "The system message for asking questions about emacs lisp in ellm.")
+
+;; (defun my-extarct-python-function ()
 ;;   "Extract the Python function definition at the current point."
 ;;   (save-excursion  ; Preserve the original cursor position
 ;;     (let (start end function-text)
@@ -180,49 +249,57 @@ Always answer with a request for clarifications when you are not fully confident
 ;;;;;;;;;;;;;
 ;; Buffers ;;
 ;;;;;;;;;;;;;
-(defun ibuffer-filter-by-workspace (buf)
-  "Filter buffers by their workspace."
-  (let ((ws (workspace-name (buffer-local-value 'workspace-current-name buf))))
-    (if ws
-        (string= ws (workspace-current-name))
-      (not (workspace-buffer-p buf)))))
+;; (defun ibuffer-filter-by-workspace (buf)
+;;   "Filter buffers by their workspace."
+;;   (let ((ws (workspace-name (buffer-local-value 'workspace-current-name buf))))
+;;     (if ws
+;;         (string= ws (workspace-current-name))
+;;       (not (workspace-buffer-p buf)))))
 
-(defun ibuffer-group-by-workspace ()
-  "Group buffers by their workspace."
-  (ibuffer-make-column-alist)
-  (ibuffer-do-sort-by-alphabetic)
-  (ibuffer-update nil t)
-  (ibuffer-forward-line 0)
-  (ibuffer-filter-by-predicate 'ibuffer-filter-by-workspace))
+;; (defun ibuffer-group-by-workspace ()
+;;   "Group buffers by their workspace."
+;;   (ibuffer-make-column-alist)
+;;   (ibuffer-do-sort-by-alphabetic)
+;;   (ibuffer-update nil t)
+;;   (ibuffer-forward-line 0)
+;;   (ibuffer-filter-by-predicate 'ibuffer-filter-by-workspace))
 
-(add-hook 'ibuffer-mode-hook
-          (lambda ()
-            (ibuffer-switch-to-saved-filter-groups "workspaces")
-            (unless (eq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
-              (setq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
-              (ibuffer-update nil t))))
+;; (add-hook 'ibuffer-mode-hook
+;;           (lambda ()
+;;             (ibuffer-switch-to-saved-filter-groups "workspaces")
+;;             (unless (eq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
+;;               (setq ibuffer-filtering-qualifiers '((workspace . ibuffer-filter-by-workspace)))
+;;               (ibuffer-update nil t))))
 
-(setq ibuffer-saved-filter-groups
-      '(("workspaces"
-         ("emacs" (workspace . "emacs"))
-         ("Workspace 1" (workspace . "1"))
-         ("Workspace 2" (workspace . "2"))
-         ("Workspace 3" (workspace . "3"))
-         ("Other" (workspace . nil)))))
+;; (setq ibuffer-saved-filter-groups
+;;       '(("workspaces"
+;;          ("emacs" (workspace . "emacs"))
+;;          ("Workspace 1" (workspace . "1"))
+;;          ("Workspace 2" (workspace . "2"))
+;;          ("Workspace 3" (workspace . "3"))
+;;          ("Other" (workspace . nil)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Method to generate uuids
-(defun +insert-random-uuid ()
-  "Insert a UUID.
-This command calls 'uuidgen' (on Linux). Taken from
-http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
+;; Make the `transpose-sexp' function preserve the point position
+(defun my-transpose-sexps ()
+  "Transpose the sexp at point and preserve the point position."
   (interactive)
-  (cond
-   ((string-equal system-type "gnu/linux")
-    (shell-command "uuidgen" t))
-   ))
+  (let ((posn (point)))
+    (transpose-sexps 1)
+    (goto-char posn)))
+
+;; Method to generate uuids
+;; (defun +insert-random-uuid ()
+;;   "Insert a UUID.
+;; This command calls 'uuidgen' (on Linux). Taken from
+;; http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
+;;   (interactive)
+;;   (cond
+;;    ((string-equal system-type "gnu/linux")
+;;     (shell-command "uuidgen" t))
+;;    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Projects configuration
@@ -283,10 +360,10 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t))
 
-; (keymap-set vertico-map "?" #'minibuffer-completion-help)
-; (keymap-set vertico-map "RET" #'minibuffer-force-complete-and-exit)
+;(keymap-set vertico-map "?" #'minibuffer-completion-help)
+;(keymap-set vertico-map "RET" #'minibuffer-force-complete-and-exit)
 ; (keymap-set vertico-map "TAB" #'minibuffer-complete)
-; (keymap-set vertico-map "M-o" #'consult-multi-occur)
+;(keymap-set vertico-map "M-o" #'consult-multi-occur)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -295,6 +372,16 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;; Use Consult instead of isearch
 ;(map! "C-s" #'consult-line)
 ;(map! "C-r" #'consult-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Lookup tools
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Utilities for googlings things at point
+;; It uses the keybinding prefix `C-c /' by default
+(use-package! google-this
+  :commands google-this-mode
+  :init
+  (google-this-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Completion
@@ -310,16 +397,24 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sly config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(eval-after-load 'sly
-  `(define-key sly-prefix-map (kbd "M-h") 'sly-documentation-lookup))
+(use-package! sly
+  :config
+  (define-key sly-prefix-map (kbd "M-h") 'sly-documentation-lookup))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package! org-protocol-capture-html
+  :config
+  (setq org-protocol-capture-html-templates
+        '(("w" "Web site" entry
+           (file "")
+           "* %a :website:\n\n%U %?\n\n%:initial"))))
+
 (setq org-directory "~/org/")
 (after! org-mode
-  (setq org-startup-folded 'show2levels
-        org-ellpsis " [...] ")
+  ;; (setq org-startup-folded 'show2levels
+  (setq org-ellipsis " [...] ")
   (setq org-todo-keyword-faces
         '(("TODO" . +org-todo-onhold)
           ("NEXT" . +org-todo-active)
@@ -331,34 +426,36 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
           ("HOLD" . +org-todo-onhold)
           ("PROJ" . +org-todo-project)
           ("NO" . +org-todo-cancel)
-          ("KILL" . +org-todo-cancel))))
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((awk . t)
-   (C . t)
-   (C++ . t)
-   (comint . t)
-   (css . t)
-   (elisp . t)
-   (eshell . t)
-   (gnuplot . t)
-   (screen . t)
-   (sed . t)
-   (dot . t)
-   (java . t)
-   (latex . t)
-   (lisp . t)
-   (lua . t)
-   (makefile . t)
-   (js . t)
-   (org . t)
-   (python . t)
-   (sass . t)
-   (sql . t)
-   (sqlite . t)
-   (restclient . t)))
-
-;(org-src-lang-mode)
+          ("KILL" . +org-todo-cancel)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((awk . t)
+     (C . t)
+     (C++ . t)
+     (comint . t)
+     (css . t)
+     (elisp . t)
+     (eshell . t)
+     (gnuplot . t)
+     (screen . t)
+     (sed . t)
+     (dot . t)
+     (java . t)
+     (latex . t)
+     (lisp . t)
+     (lua . t)
+     (makefile . t)
+     (js . t)
+     (org . t)
+     (python . t)
+     (sass . t)
+     (sql . t)
+     (sqlite . t)
+     (restclient . t)))
+  (setf (alist-get "C++" org-src-lang-modes nil nil 'equal) 'c++-ts
+        (alist-get "bash" org-src-lang-modes nil nil 'equal) 'bash-ts
+        (alist-get "cpp" org-src-lang-modes nil nil 'equal) 'c++-ts
+        (alist-get "python" org-src-lang-modes nil nil 'equal) 'python-ts))
 ;; org export
 ;; https://github.com/fniessen/org-html-themes
 ;; Use #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
@@ -388,50 +485,50 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Lsp Configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! lsp-mode
-  (setq lsp-enable-symbol-highlighting nil))
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable nil
-        lsp-ui-doc-enable nil))
+;; (after! lsp-mode
+;;   (setq lsp-enable-symbol-highlighting nil))
+;; (after! lsp-ui
+;;   (setq lsp-ui-sideline-enable nil
+;;         lsp-ui-doc-enable nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq! lsp-python-server-command '("python-language-server" "--stdio")
-       lsp-python-server-args '("--client-id" "emacs" "--project" "." "--log-level" "info")
-       lsp-python-pyright-command '("pyright" "langserver" "--stdio"))
+;; (setq! lsp-python-server-command '("python-language-server" "--stdio")
+;;        lsp-python-server-args '("--client-id" "emacs" "--project" "." "--log-level" "info")
+;;        lsp-python-pyright-command '("pyright" "langserver" "--stdio"))
 
 ;; (add-to-list 'lsp-language-id-configuration '(python-mode . "pyright"))
 
-(setq! flycheck-python-pylint-executable "pyright"
-       flycheck-python-black-executable "black")
+;(setq! flycheck-python-pylint-executable "pyright"
+;       flycheck-python-black-executable "black")
 
 
-(defun my-make-python-docstring ()
-  (interactive)
-  (let ((line-content (thing-at-point 'line t)))
-    (when (string-match "^\\s-+#\\s-" line-content)
-      (delete-region (line-beginning-position) (line-end-position))
-      (insert (format "\"\"\"%s\"\"\"" (string-trim-left (thing-at-point 'line t) "\\s-+#\\s-+"))))))
+;(defun my-make-python-docstring ()
+;  (interactive)
+;  (let ((line-content (thing-at-point 'line t)))
+;    (when (string-match "^\\s-+#\\s-" line-content)
+;      (delete-region (line-beginning-position) (line-end-position))
+;      (insert (format "\"\"\"%s\"\"\"" (string-trim-left (thing-at-point 'line t) "\\s-+#\\s-+"))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c++ config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! lsp-clangd
-  (setq lsp-clients-clangd-args
-        '("-j=2"
-          "--malloc-trim"
-          "--log=error"
-          "--background-index"
-          "--clang-tidy"
-          "--completion-style=detailed"
-          "--pch-storage=memory"
-          "--header-insertion=never"
-          "--header-insertion-decorators=0")))
+;; (after! lsp-clangd
+;;   (setq lsp-clients-clangd-args
+;;         '("-j=2"
+;;           "--malloc-trim"
+;;           "--log=error"
+;;           "--background-index"
+;;           "--clang-tidy"
+;;           "--completion-style=detailed"
+;;           "--pch-storage=memory"
+;;           "--header-insertion=never"
+;;           "--header-insertion-decorators=0")))
 
-(add-hook! c-mode-common #'google-set-c-style)
+;(add-hook! c-mode-common #'google-set-c-style)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -442,14 +539,7 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   (setq nvm-dir "/usr/share/nvm"))
 
 ;; (add-hook! (js2-mode web-mode) 'prettier-js-mode)
-(add-hook! (js2-mode web-mode typescript-tsx-mode) #'add-node-modules-path)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Appearance
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'light)
-       doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
-       doom-theme 'doom-dracula)
+;;(add-hook! (js2-mode web-mode typescript-tsx-mode) #'add-node-modules-path)
 
 ;; Files (from https://github.com/elken/doom#marginalia)
 ;; (after! marginalia
@@ -492,7 +582,7 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
 (use-package! info-colors
   :after info
   :commands (info-colors-fontify-node)
-  :hook (Info-selection . info-colors-fontify-node))
+  :custom (Info-selection . #'info-colors-fontify-node))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modeline (from https://github.com/elken/doom#modeline)
@@ -509,83 +599,98 @@ http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
   (remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
   (doom-modeline-def-modeline 'main
     '(bar modals workspace-name window-number persp-name buffer-position selection-info buffer-info matches remote-host debug vcs matches)
-    '(github mu4e grip gnus misc-info repl lsp " ")))
+    '(github mu4e grip gnus misc-info repl " ")))
 
+(dolist
+    (entry '(("\\.h\\'" . c++-ts-mode)
+             ("\\.tsx?\\'" . nil)
+             ("\\.ts\\'" . typescript-ts-mode)
+             ("\\.tsx\\'" . tsx-ts-mode)
+             ("\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" . c++-ts-mode)
+             ("\\.\\(cc\\|hh\\)\\'" . c++-ts-mode)
+             ("\\.py[iw]?\\'" . python-ts-mode)
+             ("\\.css\\'" . css-ts-mode)
+             ("\\.json\\'" . json-ts-mode)
+             ("\\.cmake\\'" . cmake-mode)
+             ("\\CMakeLists\\.txt\\'" . cmake-mode)
+             ("\\.\\(e?ya?\\|ra\\)ml\\'" . yaml-ts-mode)
+             ("\\.rs\\'" . rust-ts-mode)))
+  (add-to-list 'auto-mode-alist entry))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Markdown (+grip)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package grip-mode
-  :ensure t
-  :bind (:map markdown-mode-command-map
-              ("g" . grip-mode)))
+;; (use-package grip-mode
+;;   :ensure t
+;;   :bind (:map markdown-mode-command-map
+;;               ("g" . grip-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flycheck (Word spelling checker)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! flyspell-mode
-  (set-flyspell-predicate! '(markdown-mode gfm-mode)
-                           #'+markdown-flyspell-word-p)
+;; (defun +markdown-flyspell-word-p ()
+;;     "Return t if point is on a word that should be spell checked.
 
-  (defun +markdown-flyspell-word-p ()
-    "Return t if point is on a word that should be spell checked.
+;; Return nil if on a link url, markup, html, or references."
+;;     (let ((faces (ensure-list (get-text-property (point) 'face))))
+;;       (or (and (memq 'font-lock-comment-face faces)
+;;                (memq 'markdown-code-face faces))
+;;           (not (cl-loop with unsafe-faces = '(markdown-reference-face
+;;                                               markdown-url-face
+;;                                               markdown-markup-face
+;;                                               markdown-comment-face
+;;                                               markdown-html-attr-name-face
+;;                                               markdown-html-attr-value-face
+;;                                               markdown-html-tag-name-face
+;;                                               markdown-code-face)
+;;                         for face in faces
+;;                         if (memq face unsafe-faces)
+;;                         return t)))))
 
-Return nil if on a link url, markup, html, or references."
-    (let ((faces (ensure-list (get-text-property (point) 'face))))
-      (or (and (memq 'font-lock-comment-face faces)
-               (memq 'markdown-code-face faces))
-          (not (cl-loop with unsafe-faces = '(markdown-reference-face
-                                              markdown-url-face
-                                              markdown-markup-face
-                                              markdown-comment-face
-                                              markdown-html-attr-name-face
-                                              markdown-html-attr-value-face
-                                              markdown-html-tag-name-face
-                                              markdown-code-face)
-                        for face in faces
-                        if (memq face unsafe-faces)
-                        return t))))))
+;; (after! flyspell-mode
+;;   (set-flyspell-predicate! '(markdown-mode gfm-mode)
+;;                            #'+markdown-flyspell-word-p))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; chrome.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun load-chrome-debug ()
-        (load! (expand-file-name "chrome/chrome.el" local-repository-dir)))
+;; (defun load-chrome-debug ()
+;;         (load! (expand-file-name "chrome/chrome.el" local-repository-dir)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Docstring generator using abo-abo's auto-yas-snippets
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Enable `docstr' inside these major modes.
-(setq! yas-global-mode 1)
+;(setq! yas-global-mode 1)
 
-(defun moo-doxygen ()
-  "Generate a doxygen yasnippet and expand it with `aya-expand'.
-The point should be on the top-level function name."
-  (interactive)
-  (move-beginning-of-line nil)
-  (let ((tag (semantic-current-tag)))
-    (unless (semantic-tag-of-class-p tag 'fun () ction)
-      (error "Expected function, got %S" tag))
-    (let* ((name (semantic-tag-name tag))
-           (attrs (semantic-tag-attributes tag))
-           (args (plist-get attrs :arguments))
-           (ord 1))
-      (setq aya-current
-            (format
-             "/**
-* $1
-*
-%s
-* @return $%d
-*/
-"
-             (mapconcat
-              (lambda (x)
-                (format "* @param %s $%d"
-                        (car x) (incf ord)))
-              args
-              "\n")
-             (incf ord)))
-      (aya-expand))))
+;; (defun moo-doxygen ()
+;;   "Generate a doxygen yasnippet and expand it with `aya-expand'.
+;; The point should be on the top-level function name."
+;;   (interactive)
+;;   (move-beginning-of-line nil)
+;;   (let ((tag (semantic-current-tag)))
+;;     (unless (semantic-tag-of-class-p tag 'fun () ction)
+;;       (error "Expected function, got %S" tag))
+;;     (let* ((name (semantic-tag-name tag))
+;;            (attrs (semantic-tag-attributes tag))
+;;            (args (plist-get attrs :arguments))
+;;            (ord 1))
+;;       (setq aya-current
+;;             (format
+;;              "/**
+;; * $1
+;; *
+;; %s
+;; * @return $%d
+;; */
+;; "
+;;              (mapconcat
+;;               (lambda (x)
+;;                 (format "* @param %s $%d"
+;;                         (car x) (incf ord)))
+;;               args
+;;               "\n")
+;;              (incf ord)))
+;;       (aya-expand))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tb-dev.el
@@ -625,3 +730,4 @@ The point should be on the top-level function name."
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+(toggle-debug-on-error)

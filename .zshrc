@@ -58,7 +58,7 @@ alias dmenu='rofi -dmenu'
 alias emacd='emacsclient -c'
 alias emacs='emacs --init-directory=${XDG_CONFIG_HOME}/emacs'
 alias chrome='systemd-run --user --unit=chrome google-chrome-stable'
-alias xclip='kitten clipboard'
+#alias xclip='kitten clipboard'
 alias l='ls -lstrh'
 
 ######################################################
@@ -191,3 +191,6 @@ if [ -f '/opt/gcloud-cli/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/gcloud-c
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/opt/gcloud-cli/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/gcloud-cli/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f "/opt/miniconda3/etc/profile.d/mamba.sh" ]; then
+    . "/opt/miniconda3/etc/profile.d/mamba.sh"
+fi

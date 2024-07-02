@@ -6,4 +6,4 @@
 (run-shell-command "systemctl --user start dunst")
 
 ;; Set up a background picture on any root page.
-(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.png")
+(run-shell-command "feh --bg-scale ~/.local/share/backgrounds/arch-linux.jpg")
