@@ -45,9 +45,11 @@
     cmd))
 
 (defvar *exec-emacs*              "exec emacs --init-directory=/home/jfa/.config/emacs")
+(defvar *exec-brave*              "exec brave")
 (defvar *exec-chrome*             #.(make-chrome-cmd nil))
 (defvar *exec-chrome-nw*          #.(make-chrome-cmd t))
 (defvar *exec-firefox*            "exec systemd-run --user --unit=firefox /usr/bin/firefox")
+(defvar *exec-kitty*              "exec kitty")
 (defvar *exec-rofi*               "exec rofi -show drun -font 'Fira Code -18'")
 (defvar *exec-rofipass*           "exec rofi-pass -show drun -font 'Fira Code -18'")
 (defvar *exec-rofi-window*        "exec rofi -show window -font 'Fira Code -18'")
@@ -55,13 +57,13 @@
 
 (defvar *launch-map*
   (let ((m (make-sparse-keymap)))
-    (define-key m (kbd "b") "exec qutebrowser")
+    (define-key m (kbd "b") *exec-brave*)
     (define-key m (kbd "g") *exec-chrome*)
     (define-key m (kbd "G") *exec-chrome-nw*)
     (define-key m (kbd "f") *exec-firefox*)
     (define-key m (kbd "e") *exec-emacs*)
     (define-key m (kbd "c") *exec-emacs-everywhere*)
-    (define-key m (kbd "k") "exec kitty")
+    (define-key m (kbd "k") *exec-kitty*)
     (define-key m (kbd "r") *exec-rofi*)
     (define-key m (kbd "w") *exec-rofi-window*)
     (define-key m (kbd "p") *exec-rofipass*)
@@ -97,7 +99,7 @@
 ;; Redefine keys to behave emacs-like when focused window
 ;; has class firefox or Chrome (redirects firefox's keys)
 (define-remapped-keys
-    '(("firefox|Google-chrome|Chromium"
+    '(("firefox|Google-chrome|Chromium|Brave-browser"
      ("C-n"   . "Down")
      ("C-p"   . "Up")
      ("C-f"   . "Right")
