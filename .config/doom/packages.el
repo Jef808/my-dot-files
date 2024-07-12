@@ -7,7 +7,7 @@
 
 (package! ellm
   :recipe (:local-repo "~/projects/ellm"
-           :files ("ellm.el" "server/server.js")))
+           :files ("ellm.el" "server/server.js" "format_org.lua")))
 
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
@@ -74,8 +74,8 @@
   :recipe (:host github :repo "copilot-emacs/copilot.el"
                  :files ("*.el")))
 
-(package! codeium :recipe
-  (:host github :repo "Exafunction/codeium.el"))
+;; (package! codeium :recipe
+;;   (:host github :repo "Exafunction/codeium.el"))
 
 (package! emacs-gif-screencast
   :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))

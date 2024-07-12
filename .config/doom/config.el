@@ -108,66 +108,43 @@
 (use-package! know-your-http-well
   :after company-restclient)
 
-;; (use-package! flycheck
-;;   :init
-;;   (setq flycheck-pylintrc "~/.config/pylint/pylintrc")
-;;   :config
-;;   (setq flycheck-check-syntax-automatically t)
-;;   (setq flycheck-python-pyright-executable "/usr/bin/pyright"))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Github Copilot
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; accept completion from copilot and fallback to company
-;; (use-package! copilot
-;;   :hook '(prog-mode copilot-mode)
-;;   :bind '(:map copilot-completion-map
-;;           ("<tab>" . 'copilot-accept-completion)
-;;           ("TAB" . 'copilot-accept-completion)
-;;           ("C-TAB" . 'copilot-accept-completion-by-word)
-;;           ("C-<tab>" . 'copilot-accept-completion-by-word)))
-
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Codeium
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package! codeium
-  :init
-  ;; enable in prog-mode
-  (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
-  ;(add-hook! prog-mode-hook (setq-local completion-at-point-functions '(codeium-completion-at-point)))
-  ;; codeium-completion-at-point is autoloaded, but you can
-  ;; optionally set a timer, which might speed up things as the
-  ;; codeium local language server takes ~0.2s to start up
-  (add-hook! emacs-start-hook (run-with-timer 0.1 nil #'codeium-init))
-  (setq use-dialog-box nil)
-  (setq codeium-mode-enable
-        (lambda (api) (not (memq api '(CancelRequest Heartbeat AcceptCompletion)))))
-  (add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
-  (setq codeium-api-enabled
-        (lambda (api)
-          (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-  (defun my-codeium/document/text ()
-    (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-  (defun my-codeium/document/cursor_offset ()
-    (codeium-utf8-byte-length
-     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-  (setq codeium/document/text 'my-codeium/document/text)
-  (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
-
-(after! company
-  :defer 0.1
-  :config
-  (setq-default
-   company-idle-delay 0.05
-   company-require-match nil
-   company-minimum-prefix-length 0
-
-   ;; get only previews
-   company-frontends '(company-preview-frontend)
-   ;; also get a dropdown
-   ;; company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
-   ))
+;; (use-package! codeium
+;;   :init
+;;   ;; enable in prog-mode
+;;   (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
+;;   ;(add-hook! prog-mode-hook (setq-local completion-at-point-functions '(codeium-completion-at-point)))
+;;   ;; codeium-completion-at-point is autoloaded, but you can
+;;   ;; optionally set a timer, which might speed up things as the
+;;   ;; codeium local language server takes ~0.2s to start up
+;;   (add-hook! emacs-start-hook (run-with-timer 0.1 nil #'codeium-init))
+;;   (setq use-dialog-box nil)
+;;   (setq codeium-mode-enable
+;;         (lambda (api) (not (memq api '(CancelRequest Heartbeat AcceptCompletion)))))
+;;   (add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
+;;   (setq codeium-api-enabled
+;;         (lambda (api)
+;;           (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
+;;   (defun my-codeium/document/text ()
+;;     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
+;;   (defun my-codeium/document/cursor_offset ()
+;;     (codeium-utf8-byte-length
+;;      (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
+;;   (setq codeium/document/text 'my-codeium/document/text)
+;;   (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Communicate with LLMs using ellm
@@ -176,35 +153,22 @@
 ;; (require 'ellm)
 ;; (global-ellm-mode)
 
-(defun get-ellm-api-key-from-password-store ()
-  "Setup the API keys for the ellm package."
-  (password-store-get (format "%s/ellm_api_key" (symbol-name ellm-provider))))
-
-(defun get-openai-api-key ()
-  "Get the OpenAI API key from the password store."
-  (password-store-get "openai/ellm_api_key"))
-(defun get-anthropic-api-key ()
-  "Get the OpenAI API key from the password store."
-  (password-store-get "anthropic/ellm_api_key"))
-(defun get-groq-api-key ()
-  "Get the OpenAI API key from the password store."
- (password-store-get "groq/ellm_api_key"))
-(defun get-mistral-api-key ()
-  "Get the OpenAI API key from the password store."
-  (password-store-get "mistral/ellm_api_key"))
-
-(defun my-ellm-password-store-path (provider)
-  "Get the password store path for the provider."
-  (format "%s/ellm_api_key" (symbol-name provider)))
-
 (use-package! ellm
   :custom
-  (ellm-password-store-path-by-provider #'my-ellm-password-store-path)
+  ;; (ellm-password-store-path-by-provider #'my-ellm-password-store-path)
   (ellm-get-api-key #'ellm-get-api-key-from-password-store)
   :config
-  (global-ellm-mode)
+  (ellm-configure-password-store
+   (list (:provider openai :password-store-path "openai/ellm_api_key")
+         (:provider anthropic :password-store-path "anthropic/ellm_api_key")
+         (:provider groq :password-store-path "groq/ellm_api_key")
+         (:provider mistral :password-store-path "mistral/ellm_api_key")))
   (ellm-start-server)
-  (ellm--setup-persistance))
+  (ellm-setup-persistance)
+  (global-ellm-mode))
+
+;(debug-on-entry 'ellm--context-buffer-setup)
+;(debug-on-entry 'ellm--setup-persistance)
 
 ;; (defvar ellm-system-message-elisp "You are a useful emacs-integrated general assistant, expert in writing emacs-lisp and \
 ;; in the technicalities of the emacs packages ecosystem in general.
@@ -386,7 +350,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq company-transformers nil)
+(after! company
+  :defer 0.1
+  :config
+  (setq-default
+   company-idle-delay 0.5
+   company-require-match nil
+   company-minimum-prefix-length 0))
+; (setq company-transformers nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Prog mode
@@ -501,7 +472,8 @@
 
 ;; (add-to-list 'lsp-language-id-configuration '(python-mode . "pyright"))
 
-;(setq! flycheck-python-pylint-executable "pyright"
+(after! python-ts-mode
+  (setq! flycheck-python-pylint-executable "pylint"))
 ;       flycheck-python-black-executable "black")
 
 
@@ -516,6 +488,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c++ config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook! 'c++-ts-mode-hook (setq c-buffer-is-cc-mode t))
 ;; (after! lsp-clangd
 ;;   (setq lsp-clients-clangd-args
 ;;         '("-j=2"
@@ -533,10 +506,10 @@
 ;; Web development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;(set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
-(use-package! nvm
-  :after +Javascript-Npm
-  :config
-  (setq nvm-dir "/usr/share/nvm"))
+;; (use-package! nvm
+;;   :after +Javascript-Npm
+;;   :config
+;;   (setq nvm-dir "/usr/share/nvm"))
 
 ;; (add-hook! (js2-mode web-mode) 'prettier-js-mode)
 ;;(add-hook! (js2-mode web-mode typescript-tsx-mode) #'add-node-modules-path)
@@ -625,8 +598,23 @@
 ;;               ("g" . grip-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Flycheck (Word spelling checker)
+;; Flycheck (Syntax checking)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! flycheck
+  (defun my/flycheck-locate-config-file-xdg-config (filename checker)
+    "Locate a configuration `FILENAME' within the XDG_CONFIG_HOME directory.
+The subdirectory in which to look for `FILENAME' is suffix for the `CHECKER'.
+For example, for the checker `python-mypy', this function will look into the
+directory \"XDG_CONFIG_HOME/mypy/\"."
+    (let* ((checker-name (symbol-name checker))
+           (subdirectory
+            (when (string-match "-\\(.*\\)$" checker-name)
+              (match-string 1 checker-name))))
+      (expand-file-name
+       filename
+       (file-name-concat (xdg-config-home) subdirectory))))
+  (add-to-list 'flycheck-locate-config-file-functions #'my/flycheck-locate-config-file-xdg-config))
+
 ;; (defun +markdown-flyspell-word-p ()
 ;;     "Return t if point is on a word that should be spell checked.
 
@@ -730,4 +718,3 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
-(toggle-debug-on-error)
