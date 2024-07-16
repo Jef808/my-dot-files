@@ -5,8 +5,6 @@
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com")
 
-;(load! "/home/jfa/projects/echo-crafter/echo-crafter.el")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global configurations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,7 +40,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq! doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'light)
        doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
        doom-theme 'doom-dracula)
@@ -75,6 +73,28 @@
         (json-ts-mode . json)
         (yaml-ts-mode . yaml)
         (rust-ts-mode . rust)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Api keys
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmacro jf/configure-password-store (api-keys)
+  "Define API key getter functions for the given `API-KEYS'."
+  `(progn
+     ,@(mapcar (lambda (key-info)
+                 (when-let ((provider (plist-get key-info :provider)))
+                   `(defun ,(intern (format "jf/get-%s-api-key" provider)) ()
+                      ,(format "Get the %s API key from the password store." provider)
+                      (password-store-get ,(plist-get key-info :password-store-path)))))
+               api-keys)))
+
+(jf/configure-password-store
+ (list (:provider openai :password-store-path "openai/ellm_api_key")
+       (:provider anthropic :password-store-path "anthropic/ellm_api_key")
+       (:provider groq :password-store-path "groq/ellm_api_key")
+       (:provider mistral :password-store-path "mistral/ellm_api_key")
+       (:provider serpapi :password-store-path "serpapi/api_key")
+       (:provider brave :password-store-path "brave/api_key")
+       (:provider brave_ai :password-store-path "brave- pai/api_key")))
 
 ;; Asynchronously highlights both files and directories based
 ;; on their git status
@@ -154,9 +174,12 @@
 ;; (global-ellm-mode)
 
 (use-package! ellm
+  :functions ellm-get-api-key-from-password-store
   :custom
-  ;; (ellm-password-store-path-by-provider #'my-ellm-password-store-path)
-  (ellm-get-api-key #'ellm-get-api-key-from-password-store)
+  (ellm-get-api-key
+   (lambda ()
+     (encode-coding-string
+      (ellm-get-api-key-from-password-store) 'utf-8)))
   :config
   (ellm-configure-password-store
    (list (:provider openai :password-store-path "openai/ellm_api_key")
@@ -166,6 +189,17 @@
   (ellm-start-server)
   (ellm-setup-persistance)
   (global-ellm-mode))
+
+(use-package! gptel
+ :config
+ (defun get-anthropic-api-key ()
+  (encode-coding-string (password-store-get "anthropic/ellm_api_key") 'utf-8))
+ (setq gptel-api-key #'get-anthropic-api-key)
+ (setq gptel-model "claude-3-sonnet-20240229"
+       gptel-backend (gptel-make-anthropic "Claude"
+                       :stream t
+                       :key #'get-anthropic-api-key))
+)
 
 ;(debug-on-entry 'ellm--context-buffer-setup)
 ;(debug-on-entry 'ellm--setup-persistance)
@@ -336,6 +370,73 @@
 ;; Use Consult instead of isearch
 ;(map! "C-s" #'consult-line)
 ;(map! "C-r" #'consult-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Consult Web
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(after! consult
+  (setq consult-async-input-debounce 0.8
+        consult-async-input-throttle 1.6
+        consult-async-refresh-delay 0.8
+        consult-preview-key "C-o"))  ;;; set the preview key to C-o
+
+(use-package consult-web
+  :after consult
+  :custom
+  ;; General settings that apply to all sources
+  (consult-web-show-preview t)  ;;; show previews
+  (consult-web-preview-key "C-o")  ;;; set the preview key to C-o
+  (consult-web-highlight-matches t) ;;; highlight matches in minibuffer
+  (consult-web-default-count 5) ;;; set default count
+  (consult-web-default-page 0) ;;; set the default page (default is 0 for the first page)
+
+  ;;; optionally change the consult-web debounce, throttle and delay.
+  ;;; Adjust these (e.g. increase to avoid hiting a source (e.g. an API) too frequently)
+  (consult-web-dynamic-input-debounce 0.8)
+  (consult-web-dynamic-input-throttle 1.6)
+  (consult-web-dynamic-refresh-delay 0.8)
+
+  :config
+  ;; Add sources and configure them
+  ;;; load the example sources provided by default
+  (require 'consult-web-sources)
+
+  ;;; set multiple sources for consult-web-multi command. Change these lists as needed for different interactive commands. Keep in mind that each source has to be a key in `consult-web-sources-alist'.
+  (setq consult-web-multi-sources '("Brave" "Wikipedia" ;; "chatGPT" "Google"
+                                    )) ;; consult-web-multi
+  (setq consult-web-dynamic-sources '(;; "gptel"
+                                      "Brave" ;; "StackOverFlow"
+                                      )) ;; consult-web-dynamic
+  (setq consult-web-omni-sources (list "elfeed" "Brave" "Wikipedia" "YouTube" ;; "gptel"
+                                       'consult-buffer-sources 'consult-notes-all-sources)) ;;consult-web-omni
+  (setq consult-web-dynamic-omni-sources (list "Known Project" "File" "Bookmark" "Buffer" ;; "Reference Roam Nodes"
+                                               ;; "Zettel Roam Nodes"
+                                               "Line Multi" "elfeed" "Brave" "Wikipedia" ;; "gptel"
+                                               "Youtube")) ;;consult-web-dynamic-omni
+
+  ;; Per source customization
+  ;;; Pick you favorite autosuggest command.
+  ;(setq consult-web-default-autosuggest-command #'consult-web-dynamic-brave-autosuggest) ;;or any other autosuggest source you define
+
+  ;;; Set API KEYs. It is recommended to use a function that returns the string for better security.
+  ; (setq consult-web-google-customsearch-key "YOUR-GOOGLE-API-KEY-OR-FUNCTION")
+  ; (setq consult-web-google-customsearch-cx "YOUR-GOOGLE-CX-NUMBER-OR-FUNCTION")
+  (setq consult-web-brave-api-key #'jf/get-brave-api-key)
+  ;; (setq consult-web-stackexchange-api-key "YOUR-STACKEXCHANGE-API-KEY-OR-FUNCTION")
+  ; (setq consult-web-openai-api-key #'jf/get-openai-api-key)
+  ;;; add more keys as needed here.
+  ;; (consult-web-define-source "Brave"
+  ;;                            :narrow-char ?b
+  ;;                            :face 'consult-web-engine-source-face
+  ;;                            :request #'consult-web--brave-fetch-results
+  ;;                            ; :preview-key consult-web-preview-key
+  ;;                            :search-history 'consult-web--search-history
+  ;;                            :selection-history 'consult-web--selection-history
+  ;;                            :dynamic 'both
+  ;;                            )
+)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Lookup tools

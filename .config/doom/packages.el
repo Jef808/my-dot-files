@@ -9,6 +9,13 @@
   :recipe (:local-repo "~/projects/ellm"
            :files ("ellm.el" "server/server.js" "format_org.lua")))
 
+(package! consult-web
+  :recipe (:host github :repo "armindarvish/consult-web"
+                 :branch "main" :files (:defaults "sources/*.el")))
+
+(package! gptel
+  :recipe (:host github :repo "krthink/gptel"))
+
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
           :files ("google-c-style.el")))
