@@ -194,3 +194,6 @@ if [ -f '/opt/gcloud-cli/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/gc
 if [ -f "/opt/miniconda3/etc/profile.d/mamba.sh" ]; then
     . "/opt/miniconda3/etc/profile.d/mamba.sh"
 fi
+
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc

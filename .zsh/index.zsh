@@ -7,8 +7,9 @@
 fpath+=$zsh_dir/function
 
 source $zsh_dir/zsh-autosuggestions.zsh
-source $HOME/.zsh/zsh-histdb/sqlite-history.zsh
+source $zsh_dir/zsh-histdb/sqlite-history.zsh
 
+source $zsh_dir/fastapi-completion.zsh
 
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
