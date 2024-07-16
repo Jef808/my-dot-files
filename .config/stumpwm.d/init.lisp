@@ -5,6 +5,8 @@
 (require :stumpwm)
 (in-package :stumpwm)
 
+(setf *default-package* :stumpwm)
+
 (defvar *config-dir* "/home/jfa/.config/stumpwm.d/"
   "The directory where the stumpwm configuration files are stored.")
 (init-load-path "/home/jfa/.config/stumpwm.d/stumpwm-contrib/")

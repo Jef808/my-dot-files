@@ -7,3 +7,6 @@
 
 ;; Disable sound bell
 (run-shell-command "xset b off")
+
+;; Toggle Quebec keyboard layout with s-SPC
+(run-shell-command "setxkbmap 'us,ca' -option ctrl:swapcaps -option grp:win_space_toggle")

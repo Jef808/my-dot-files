@@ -118,7 +118,6 @@
      ("M-f"   . "C-Right")
      ("M-b"   . "C-Left")
      ("C-M-k" . "C-w")
-     ("C-l"   . "F6")
      ("C-k"   . "C-w"))))
 
 ;; If circumventing the above remapping is needed
