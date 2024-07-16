@@ -1,3 +1,4 @@
+;;; config.el --- My emacs configuration
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 (require 'dash)
@@ -29,14 +30,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom advices
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun my-mark-defun-fix (orig-fun &rest args)
-  "Wrapper for mark-defun to exclude the line above the current defun."
-  (apply orig-fun args)
+(defun jf/mark-block-exact (function &rest args)
+  "Wraps a `FUNCTION' to avoid marking empty lines.
+By advising `mark-defun' and `mark-paragraph' with this,
+doing \\[mark-defun] (or \\[mark-paragraph]) will mark the
+defun (respectively the paragraph) at point and will exclude
+any empty line preceding it."
+  (apply fun args)
   (goto-char (mark))
   (beginning-of-defun))
-
 (advice-add 'mark-defun :around #'my-mark-defun-fix)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
@@ -133,12 +136,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; accept completion from copilot and fallback to company
 (use-package! copilot
-  :hook (prog-mode . copilot-mode)
+  :hook (prog-mode copilot-mode)
   :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+              ("C-<tab>" . 'copilot-accept-completion-by-word))
+  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Codeium
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -302,61 +306,73 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Projects configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Use after-call to load package before hook
-(use-package! projectile
-  ;; :after-call (pre-command-hook after-find-file dired-before-readin-hook)
-  ;; :config
-  ;; (defun projectile-project-find-function (dir)
-  ;;   (let* ((root (projectile-project-root dir)))
-  ;;     (and (const 'transient root)))))
-  :commands (projectile-register-project-type)
-  :init
-  (projectile-register-project-type 'npm '("package.json")
-                                           :project-file "package.json"
-                                           :compile "npm install"
-                                           :test "npm test"
-                                           :run "npm start"
-                                           :test-suffix ".spec")
-  (projectile-register-project-type 'vue '("vite.config.ts")
-                                           :project-file "package.json"
-                                           :compile "npm run build"
-                                           :test "node_modules/vue-tsc/bin/vue-tsc.js --noEmit"
-                                           :run "npm run dev")
-  (setq projectile-indexing-method 'alien))
+;; (after! projectile
+;;   :commands (projectile-register-project-type)
+;;   :init
+;;   (projectile-register-project-type 'npm '("package.json")
+;;                                            :project-file "package.json"
+;;                                            :compile "npm install"
+;;                                            :test "npm test"
+;;                                            :run "npm start"
+;;                                            :test-suffix ".spec")
+;;   (projectile-register-project-type 'vue '("vite.config.ts")
+;;                                            :project-file "package.json"
+;;                                            :compile "npm run build"
+;;                                            :test "node_modules/vue-tsc/bin/vue-tsc.js --noEmit"
+;;                                            :run "npm run dev"))
+(after! projectile (setq projectile-indexing-method 'alien))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Vertico
+;; Orderless
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package vertico
-  :init
-  (vertico-mode))
-(use-package savehist
-  :init
-  (savehist-mode))
-(use-package emacs
-  :init
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                  crm-separator)
-                  (car args))
-          (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
+;; (use-package! orderless
+;;   :ensure t
+;;   :custom
+;;   (completion-styles '(orderless basic))
+;;   (completion-category-overrides '((file (styles basic partial-completion))))
+;;   :config
+;;   ;; Configure orderless to use the flex matching style
+;;   (defun jf/set-orderless-component-separator ()
+;;     "Set `orderless-component-separator' for emacs-lisp-mode."
+;;     (setq-local orderless-component-separator "[ &]"))
+;;   (add-hook 'emacs-lisp-mode-hook #'jf/set-orderless-component-separator)
 
-  ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t))
+;;   (defun jf/highlight-orderless-matches (fn &rest args)
+;;     (let ((orderless-match-faces [completions-common-part]))
+;;       (apply fn args)))
+;;   (after! company
+;;     (advice-add 'company-capf--candidates :around #'jf/match-orderless-matches)))
+
+;; (use-package vertico
+;;   :init
+;;   (vertico-mode))
+;; (use-package savehist
+;;   :init
+;;   (savehist-mode))
+;; (use-package emacs
+;;   :init
+;;   ;; Add prompt indicator to `completing-read-multiple'.
+;;   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+;;   (defun crm-indicator (args)
+;;     (cons (format "[CRM%s] %s"
+;;                   (replace-regexp-in-string
+;;                    "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+;;                   crm-separator)
+;;                   (car args))
+;;           (cdr args)))
+;;   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+;; ;; Do not allow the cursor in the minibuffer prompt
+;;   (setq minibuffer-prompt-properties
+;;         '(read-only t cursor-intangible t face minibuffer-prompt))
+;;   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+;; ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+;;   ;; Vertico commands are hidden in normal buffers.
+;;   (setq read-extended-command-predicate
+;;         #'command-completion-default-include-p)
+
+;;   ;; Enable recursive minibuffers
+;;   (setq enable-recursive-minibuffers t))
 
 ;(keymap-set vertico-map "?" #'minibuffer-completion-help)
 ;(keymap-set vertico-map "RET" #'minibuffer-force-complete-and-exit)
@@ -380,7 +396,7 @@
         consult-async-refresh-delay 0.8
         consult-preview-key "C-o"))  ;;; set the preview key to C-o
 
-(use-package consult-web
+(use-package! consult-web
   :after consult
   :custom
   ;; General settings that apply to all sources
