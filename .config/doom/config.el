@@ -30,16 +30,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom advices
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun jf/mark-block-exact (function &rest args)
-  "Wraps a `FUNCTION' to avoid marking empty lines.
-By advising `mark-defun' and `mark-paragraph' with this,
-doing \\[mark-defun] (or \\[mark-paragraph]) will mark the
-defun (respectively the paragraph) at point and will exclude
-any empty line preceding it."
-  (apply fun args)
-  (goto-char (mark))
-  (beginning-of-defun))
-(advice-add 'mark-defun :around #'my-mark-defun-fix)
+(defun jf/mark-thing1 (mark-func &optional args interactive)
+  "Advice which prevents `MARK-FUNC' to overshoot.
+\(`ARGS' and `INTERACTIVE' are as in `mark-defun'.
+The builtin `mark-defun' function includes commented and/or
+empty lines found before the function it is marking. With this,
+when doing \\[mark-defun] only the `defun' form is marked."
+  (let ((beginning-of-defun-function #'beginning-of-defun))
+    (funcall mark-func args interactive)))
+
+(advice-add 'mark-defun :around #'jf/mark-thing1)
+;(advice-add 'mark-paragraph :around #'jf/mark-thing1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
@@ -136,13 +137,15 @@ any empty line preceding it."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; accept completion from copilot and fallback to company
 (use-package! copilot
-  :hook (prog-mode copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word))
+  :hook `((prog-mode . ,copilot-mode))
+  :config
+  (map! :map copilot-completion-map
+        "<tab>"    #'copilot-accept-completion
+        "TAB"      #'copilot-accept-completion
+        "C-TAB"    #'copilot-accept-completion-by-word
+        "C-<tab>"  #'copilot-accept-completion-by-word)
   )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Codeium
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
