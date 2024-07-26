@@ -1,7 +1,8 @@
-;;; config.el --- My emacs configuration
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; config.el -*- lexical-binding: t; -*-
 
 (require 'dash)
+
+;;; Code:
 
 (setq! user-full-name "Jean-Francois Arbour"
        user-mail-address "jf.arbour@gmail.com")
@@ -81,24 +82,25 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Api keys
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmacro jf/configure-password-store (api-keys)
-  "Define API key getter functions for the given `API-KEYS'."
-  `(progn
-     ,@(mapcar (lambda (key-info)
-                 (when-let ((provider (plist-get key-info :provider)))
-                   `(defun ,(intern (format "jf/get-%s-api-key" provider)) ()
-                      ,(format "Get the %s API key from the password store." provider)
-                      (password-store-get ,(plist-get key-info :password-store-path)))))
-               api-keys)))
-
-(jf/configure-password-store
- (list (:provider openai :password-store-path "openai/ellm_api_key")
-       (:provider anthropic :password-store-path "anthropic/ellm_api_key")
-       (:provider groq :password-store-path "groq/ellm_api_key")
-       (:provider mistral :password-store-path "mistral/ellm_api_key")
-       (:provider serpapi :password-store-path "serpapi/api_key")
-       (:provider brave :password-store-path "brave/api_key")
-       (:provider brave_ai :password-store-path "brave- pai/api_key")))
+;; (defmacro jf/configure-password-store (api-keys)
+;;   "Define API key getter functions for the given `API-KEYS'."
+;;   `(progn
+;;      ,@(mapcar (lambda (key-info)
+;;                  (when-let ((provider (plist-get key-info :provider)))
+;;                    `(defun ,(intern ,(format "jf/get-%s-api-key" provider)) ()
+;;                       ,(format "Get the %s API key from the password store." provider)
+;;                       ,(encode-coding-string (password-store-get ,(plist-get key-info :password-store-path)) 'utf-8))))
+;;                api-keys)))
+;;
+;; (after! ellm
+;;   (jf/configure-password-store
+;;    (list (:provider openai :password-store-path "openai/ellm_api_key")
+;;          (:provider anthropic :password-store-path "anthropic/ellm_api_key")
+;;          (:provider groq :password-store-path "groq/ellm_api_key")
+;;          (:provider mistral :password-store-path "mistral/ellm_api_key")
+;;          (:provider serpapi :password-store-path "serpapi/api_key")
+;;          (:provider brave :password-store-path "brave/api_key")
+;;          (:provider brave_ai :password-store-path "brave- pai/api_key"))))
 
 ;; Asynchronously highlights both files and directories based
 ;; on their git status
@@ -125,26 +127,37 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;                          ))
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; restclient http helpers ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package! know-your-http-well
-  :after company-restclient)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Github Copilot
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; accept completion from copilot and fallback to company
+;; (use-package copilot
+;;   :defines (copilot-mode copilot-completion-map)
+;;   :commands (copilot-accept-completion)
+;;   :init
+;;   :hook (prog-mode . copilot-mode)
+;;   :config
+;;   (setq jf/copilot-tab-or-default
+;;           #'(lambda ()
+;;                     (if (and (bound-and-true-p copilot-mode))
+;;                             (copilot-accept-completion))))
+;;   (map! :map
+;;         copilot-completion-map
+;;         "<tab>"   #'jf/copilot-tab-or-default
+;;         "TAB"     #'jf/copilot-tab-or-default
+;;         "C-TAB"   #'copilot-accept-completion-by-word
+;;         "C-<tab>" #'copilot-accept-completion-by-word))
+
+
 (use-package! copilot
-  :hook `((prog-mode . ,copilot-mode))
-  :config
-  (map! :map copilot-completion-map
+  :hook 'prog-mode copilot-mode)
+
+(map! :after copilot
+      :map copilot-completion-map
         "<tab>"    #'copilot-accept-completion
         "TAB"      #'copilot-accept-completion
         "C-TAB"    #'copilot-accept-completion-by-word
         "C-<tab>"  #'copilot-accept-completion-by-word)
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Codeium
@@ -180,32 +193,34 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;; (require 'ellm)
 ;; (global-ellm-mode)
 
+(setq jf/pw-store-paths
+  '((openai . "openai/ellm_api_key")
+    (anthropic . "anthropic/ellm_api_key")
+    (groq . "groq/ellm_api_key")
+    (mistral . "mistral/ellm_api_key")))
+
+(defun jf/api-key-pw-store (provider)
+  "Get api key for `PROVIDER' from the password store."
+  (or (encode-coding-string
+       (string-trim-right (shell-command-to-string (format "pass %s" (alist-get provider jf/pw-store-paths))))
+       'utf-8)
+    (error "config.el: jf/api-keys-pw-store: Unknown provider: %s" (symbol-name provider))))
+
 (use-package! ellm
-  :functions ellm-get-api-key-from-password-store
   :custom
-  (ellm-get-api-key
-   (lambda ()
-     (encode-coding-string
-      (ellm-get-api-key-from-password-store) 'utf-8)))
+  ellm-api-key #'jf/api-key-pw-store
   :config
-  (ellm-configure-password-store
-   (list (:provider openai :password-store-path "openai/ellm_api_key")
-         (:provider anthropic :password-store-path "anthropic/ellm_api_key")
-         (:provider groq :password-store-path "groq/ellm_api_key")
-         (:provider mistral :password-store-path "mistral/ellm_api_key")))
-  (ellm-start-server)
   (ellm-setup-persistance)
-  (global-ellm-mode))
+  (ellm-start-server)
+  (global-ellm-mode)
+  )
 
 (use-package! gptel
  :config
- (defun get-anthropic-api-key ()
-  (encode-coding-string (password-store-get "anthropic/ellm_api_key") 'utf-8))
- (setq gptel-api-key #'get-anthropic-api-key)
  (setq gptel-model "claude-3-sonnet-20240229"
        gptel-backend (gptel-make-anthropic "Claude"
                        :stream t
-                       :key #'get-anthropic-api-key))
+                       :key (apply-partially #'jf/api-key-pw-store 'anthropic)))
 )
 
 ;(debug-on-entry 'ellm--context-buffer-setup)
@@ -625,6 +640,23 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Web development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (tide-hl-identifier-mode +1)
+  (setq tide-format-options '(:indentSize 4
+                              :tabSize 4
+                              :insertSpaceAfterFunctionKeywordForAnonymousFunctions t
+                              :placeOpenBraceOnNewLineForFunctions nil
+                              :placeOpenBraceOnNewLineForControlBlocks nil)))
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+(add-hook 'typescript-ts-mode-hook #'setup-tide-mode)
+(add-hook 'tsx-ts-mode-hook #'setup-tide-mode)
+(add-hook 'js2-mode-hook #'setup-tide-mode)
+(add-hook 'rjsx-mode-hook #'setup-tide-mode)
+
 ;;(set-lookup-handlers! 'js2-mode :xref-backend #'xref-js2-xref-backend)
 ;; (use-package! nvm
 ;;   :after +Javascript-Npm
@@ -838,3 +870,9 @@ directory \"XDG_CONFIG_HOME/mypy/\"."
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+
+;;; config.el ends here
+
+;; Local Variables:
+;; +emacs-lisp-non-package-mode: t
+;; End:
