@@ -16,19 +16,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (set-prefix-key (kbd "M-TAB"))
 
- ;; Global keybindings
-(define-key *root-map* (kbd "TAB") "abort")
-(define-key *root-map* (kbd "C-g") "abort")
- ;; Window navigation
-(define-key *root-map* (kbd "k")   "move-focus  up")
-(define-key *root-map* (kbd "j")   "move-focus  down")
-(define-key *root-map* (kbd "h")   "move-focus  left")
-(define-key *root-map* (kbd "l")   "move-focus  right")
+;; Global keybindings
+(define-key *root-map* (kbd "C-g")          "abort")
+(define-key *root-map* (kbd "ESC")          "abort")
+(define-key *root-map* (kbd "TAB")          "pull-hidden-next")
+(define-key *root-map* (kbd "ISO_Left_Tab") "pull-hidden-previous")
+
+;; Window navigation
+;; (define-key *root-map* (kbd "k")   "move-focus  up")
+;; (define-key *root-map* (kbd "j")   "move-focus  down")
+;; (define-key *root-map* (kbd "h")   "move-focus  left")
+;; (define-key *root-map* (kbd "l")   "move-focus  right")
+;; Window navigation
+(define-key *top-map* (kbd "s-k")  "move-focus up")
+(define-key *top-map* (kbd "s-j")  "move-focus down")
+(define-key *top-map* (kbd "s-h")  "move-focus left")
+(define-key *top-map* (kbd "s-l")  "move-focus right")
+
 ;; Window displacement
-(define-key *root-map* (kbd "M-k") "move-window up")
-(define-key *root-map* (kbd "M-j") "move-window down")
-(define-key *root-map* (kbd "M-h") "move-window left")
-(define-key *root-map* (kbd "M-l") "move-window right")
+;; (define-key *root-map* (kbd "M-k") "move-window up")
+;; (define-key *root-map* (kbd "M-j") "move-window down")
+;; (define-key *root-map* (kbd "M-h") "move-window left")
+;; (define-key *root-map* (kbd "M-l") "move-window right")
+;; Window displacement
+(define-key *top-map* (kbd "s-K")  "move-window up")
+(define-key *top-map* (kbd "s-J")  "move-window down")
+(define-key *top-map* (kbd "s-H")  "move-window left")
+(define-key *top-map* (kbd "s-L")  "move-window right")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Launch map             ;;
@@ -44,6 +58,7 @@
     (incf *chrome-window-count*)
     cmd))
 
+;(defvar *exec-emacs*              "exec gio /usr/share/applications/emacsclient.desktop")
 (defvar *exec-emacs*              "exec emacs --init-directory=/home/jfa/.config/emacs")
 (defvar *exec-brave*              "exec brave")
 (defvar *exec-chrome*             #.(make-chrome-cmd nil))

@@ -8,12 +8,13 @@
   "Enable the mode line on all screens."
   (dolist (screen *screen-list*)
     (dolist (head (screen-heads screen))
-      (enable-mode-line screen head t))))
+      (enable-mode-line screen head nil))))
 
 (defun external-monitor-enabled-p ()
   "Check if an external monitor is enabled."
-  (> (string-to-number
-      (string-right-trim (run-shell-command "xrandr | grep '*' | wc -l" t)) 1)))
+  (let ((other-screen
+         (string-right-trim (run-shell-command "xrandr | grep '*' | wc -l" t))))
+    (> (string-to-number other-screen) 1)))
 
 ;; Screen layouts
 (defcommand hdmi-on () ()

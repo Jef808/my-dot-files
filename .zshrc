@@ -55,10 +55,11 @@ alias pacsyu='sudo pacman -Syu'
 alias pacqdt='pacman -Qdt'
 alias pstree='pstree -hgT --color=age'
 alias dmenu='rofi -dmenu'
-alias emacd='emacsclient -c'
+alias emacd='gio launch /usr/share/applications/emacsclient.desktop'
 alias emacs='emacs --init-directory=${XDG_CONFIG_HOME}/emacs'
 alias chrome='systemd-run --user --unit=chrome google-chrome-stable'
-#alias xclip='kitten clipboard'
+alias vpnstart='sudo openvpn ~/.local/share/openvpn/us-free-112057.protonvpn.udp.ovpn'
+alias xclip='xclip -selection "clipboard"'
 alias l='ls -lstrh'
 
 ######################################################

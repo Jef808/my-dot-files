@@ -5,16 +5,21 @@
 ;; (package! tb-dev
 ;;   :recipe (:local-repo "~/projects/elisp/tb-dev"))
 
+;; (package! ellm
+;;   :recipe (:host github
+;;            :repo "jef808/ellm"
+;;            :files ("ellm.el" "server/server.js" "format_org.lua")))
+
 (package! ellm
   :recipe (:local-repo "~/projects/ellm"
            :files ("ellm.el" "server/server.js" "format_org.lua")))
 
-(package! consult-web
-  :recipe (:host github :repo "armindarvish/consult-web"
-                 :branch "main" :files (:defaults "sources/*.el")))
+;; (package! consult-web
+;;   :recipe (:host github :repo "armindarvish/consult-web"
+;;                  :branch "main" :files (:defaults "sources/*.el")))
 
-(package! gptel
-  :recipe (:host github :repo "krthink/gptel"))
+;; (package! gptel
+;;   :recipe (:host github :repo "krthink/gptel"))
 
 (package! google-c-style
  :recipe (:host github :repo "google/styleguide"
@@ -34,9 +39,11 @@
 
 (package! sly-quicklisp)
 
-(package! lsp-tailwindcss)
+;(package! lsp-tailwindcss)
 
-(package! lsp-pyright)
+;(package! lsp-pyright)
+
+(package! arxiv-mode)
 
 (package! know-your-http-well
   :recipe (:host github :repo "for-GET/know-your-http-well"
@@ -49,9 +56,9 @@
 
 (package! ox-json)
 
-(package! ox-gfm)
+;(package! ox-gfm)
 
-(package! emacs-emojify)
+;(package! emacs-emojify)
 
 ;(package! conda)
 (package! nvm)
@@ -83,12 +90,10 @@
 ;; (package! codeium :recipe
 ;;   (:host github :repo "Exafunction/codeium.el"))
 
-(package! emacs-gif-screencast
-  :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
-
+;; (package! emacs-gif-screencast
+;;   :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
 
 (package! graphviz-dot-mode)
-
 
 (package! system-packages)
 
@@ -97,18 +102,17 @@
 (package! git-undo
   :recipe (:host github :repo "jwiegley/git-undo-el"))
 
+;; (package! org-download)
 
-(package! org-download)
+;; (package! org-appear)
 
-(package! org-appear)
+;; (package! org-protocol-capture-html
+;;   :recipe (:host github :repo "alphapapa/org-protocol-capture-html"))
 
-(package! org-protocol-capture-html
-  :recipe (:host github :repo "alphapapa/org-protocol-capture-html"))
+;; (package! fancy-narrow)
 
-(package! fancy-narrow)
-
-(package! project-explorer
-  :recipe (:host github :repo "sabof/project-explorer"))
+;; (package! project-explorer
+;;   :recipe (:host github :repo "sabof/project-explorer"))
 
 ;(package! khoj)
 

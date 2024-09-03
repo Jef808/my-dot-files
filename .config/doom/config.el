@@ -52,8 +52,27 @@ when doing \\[mark-defun] only the `defun' form is marked."
 
 (setq envrc-direnv-executable "/usr/bin/direnv")
 (setq inhibit-x-resources nil)
-(setq browse-url-browser-function 'browse-url-chrome)
-(setq browse-url-chrome-program "/usr/bin/google-chrome-stable")
+
+(defun jf/browse-url-brave (url &optional _new-window)
+  "Ask the Brave WWW browser to load URL.
+Default to the URL around or before point. The strings in
+variable `jf/browse-url-brave-arguments' are also passed to
+Brave.
+The optional argument NEW-WINDOW is not used."
+  (interactive (browse-url-interactive-arg "URL: "))
+  (setq url (browse-url-encode-url url))
+  (let* ((process-environment (browse-url-process-environment)))
+    (apply #'start-process
+       (concat "brave " url) nil
+       jf/browse-url-brave-program
+       (append
+        jf/browse-url-brave-arguments
+        (list url)))))
+
+(setq browse-url-chrome-program "/usr/bin/google-chrome-stable"
+      browse-url-browser-function 'jf/browse-url-brave
+      jf/browse-url-brave-program "/usr/bin/brave"
+      jf/browse-url-brave-arguments nil)
 
 
 ;; Map \\[execute-extended-command] to C-c C-m and C-x C-m
@@ -67,7 +86,9 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;; Remap \\[kill-region] to C-x C-k (it was C-w)
 (global-set-key (kbd "C-x C-k") 'kill-region)
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tree Sitter
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (mapc (lambda (e) (set-tree-sitter-lang! (car e) (cdr e)))
       `((c++-ts-mode . h)
         (c++-ts-mode . cpp)
@@ -78,54 +99,7 @@ when doing \\[mark-defun] only the `defun' form is marked."
         (json-ts-mode . json)
         (yaml-ts-mode . yaml)
         (rust-ts-mode . rust)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Api keys
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defmacro jf/configure-password-store (api-keys)
-;;   "Define API key getter functions for the given `API-KEYS'."
-;;   `(progn
-;;      ,@(mapcar (lambda (key-info)
-;;                  (when-let ((provider (plist-get key-info :provider)))
-;;                    `(defun ,(intern ,(format "jf/get-%s-api-key" provider)) ()
-;;                       ,(format "Get the %s API key from the password store." provider)
-;;                       ,(encode-coding-string (password-store-get ,(plist-get key-info :password-store-path)) 'utf-8))))
-;;                api-keys)))
-;;
-;; (after! ellm
-;;   (jf/configure-password-store
-;;    (list (:provider openai :password-store-path "openai/ellm_api_key")
-;;          (:provider anthropic :password-store-path "anthropic/ellm_api_key")
-;;          (:provider groq :password-store-path "groq/ellm_api_key")
-;;          (:provider mistral :password-store-path "mistral/ellm_api_key")
-;;          (:provider serpapi :password-store-path "serpapi/api_key")
-;;          (:provider brave :password-store-path "brave/api_key")
-;;          (:provider brave_ai :password-store-path "brave- pai/api_key"))))
-
-;; Asynchronously highlights both files and directories based
-;; on their git status
-;(setq +treemacs-git-mode 'deferred)
-
-;; (after! python-mode
-;;   :config
-;;   (setq flycheck-python-pyright-executable "/usr/bin/pyright"))
-
-;; (add-hook!
-;;  :append
-;;  'doom-after-init-hook '(global-flycheck-mode,
-;;                          global-eldoc-mode,
-;;                          global-company-mode,
-;;                          global-auto-revert-mode,
-;;                          global-visual-line-mode,
-;;                          global-subword-mode,
-;;                          global-hl-line-mode,
-;;                          global-npm-mode,
-;;                          global-direnv-mode,
-;;                          global-copilot-mode,
-;;                          global-font-lock-mode,
-;;                          global-goto-address-mode
-;;                          ))
-
+(setq treesit-extra-load-path '("~/.local/share/tree-sitter-gdscript/src/"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Github Copilot
@@ -149,8 +123,8 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;         "C-<tab>" #'copilot-accept-completion-by-word))
 
 
-(use-package! copilot
-  :hook 'prog-mode copilot-mode)
+;; (use-package! copilot
+;;   :hook 'prog-mode copilot-mode)
 
 (map! :after copilot
       :map copilot-completion-map
@@ -160,51 +134,25 @@ when doing \\[mark-defun] only the `defun' form is marked."
         "C-<tab>"  #'copilot-accept-completion-by-word)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Codeium
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package! codeium
-;;   :init
-;;   ;; enable in prog-mode
-;;   (add-to-list 'completion-at-point-functions #'codeium-completion-at-point)
-;;   ;(add-hook! prog-mode-hook (setq-local completion-at-point-functions '(codeium-completion-at-point)))
-;;   ;; codeium-completion-at-point is autoloaded, but you can
-;;   ;; optionally set a timer, which might speed up things as the
-;;   ;; codeium local language server takes ~0.2s to start up
-;;   (add-hook! emacs-start-hook (run-with-timer 0.1 nil #'codeium-init))
-;;   (setq use-dialog-box nil)
-;;   (setq codeium-mode-enable
-;;         (lambda (api) (not (memq api '(CancelRequest Heartbeat AcceptCompletion)))))
-;;   (add-to-list 'mode-line-format '(:eval (car-safe codeium-mode-line)) t)
-;;   (setq codeium-api-enabled
-;;         (lambda (api)
-;;           (memq api '(GetCompletions Heartbeat CancelRequest GetAuthToken RegisterUser auth-redirect AcceptCompletion))))
-;;   (defun my-codeium/document/text ()
-;;     (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (min (+ (point) 1000) (point-max))))
-;;   (defun my-codeium/document/cursor_offset ()
-;;     (codeium-utf8-byte-length
-;;      (buffer-substring-no-properties (max (- (point) 3000) (point-min)) (point))))
-;;   (setq codeium/document/text 'my-codeium/document/text)
-;;   (setq codeium/document/cursor_offset 'my-codeium/document/cursor_offset))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Communicate with LLMs using ellm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (load (expand-file-name "~/projects/emacs/ellm/ellm.el"))
 ;; (require 'ellm)
 ;; (global-ellm-mode)
 
-(setq jf/pw-store-paths
-  '((openai . "openai/ellm_api_key")
-    (anthropic . "anthropic/ellm_api_key")
-    (groq . "groq/ellm_api_key")
-    (mistral . "mistral/ellm_api_key")))
-
 (defun jf/api-key-pw-store (provider)
   "Get api key for `PROVIDER' from the password store."
-  (or (encode-coding-string
-       (string-trim-right (shell-command-to-string (format "pass %s" (alist-get provider jf/pw-store-paths))))
-       'utf-8)
-    (error "config.el: jf/api-keys-pw-store: Unknown provider: %s" (symbol-name provider))))
+  (let ((jf/pw-store-paths
+         '((openai . "openai/ellm_api_key")
+           (anthropic . "anthropic/ellm_api_key")
+           (groq . "groq/ellm_api_key")
+           (mistral . "mistral/ellm_api_key"))))
+    (or (encode-coding-string
+         (string-trim-right (shell-command-to-string (format "pass %s" (alist-get provider jf/pw-store-paths))))
+         'utf-8)
+        (error "config.el: jf/api-keys-pw-store: Unknown provider: %s" (symbol-name provider)))))
+
+
 
 (use-package! ellm
   :custom
@@ -212,19 +160,10 @@ when doing \\[mark-defun] only the `defun' form is marked."
   :config
   (ellm-setup-persistance)
   (ellm-start-server)
-  (global-ellm-mode)
-  )
+  (global-ellm-mode))
 
-(use-package! gptel
- :config
- (setq gptel-model "claude-3-sonnet-20240229"
-       gptel-backend (gptel-make-anthropic "Claude"
-                       :stream t
-                       :key (apply-partially #'jf/api-key-pw-store 'anthropic)))
-)
-
-;(debug-on-entry 'ellm--context-buffer-setup)
-;(debug-on-entry 'ellm--setup-persistance)
+;; (debug-on-entry 'ellm--context-buffer-setup)
+;; (debug-on-entry 'ellm--setup-persistance)
 
 ;; (defvar ellm-system-message-elisp "You are a useful emacs-integrated general assistant, expert in writing emacs-lisp and \
 ;; in the technicalities of the emacs packages ecosystem in general.
@@ -311,7 +250,7 @@ when doing \\[mark-defun] only the `defun' form is marked."
     (goto-char posn)))
 
 ;; Method to generate uuids
-;; (defun +insert-random-uuid ()
+;; (defun jf/insert-random-uuid ()
 ;;   "Insert a UUID.
 ;; This command calls 'uuidgen' (on Linux). Taken from
 ;; http://xahlee.info/emacs/emacs/elisp_generate_uuid.html"
@@ -340,139 +279,7 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;                                            :run "npm run dev"))
 (after! projectile (setq projectile-indexing-method 'alien))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Orderless
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package! orderless
-;;   :ensure t
-;;   :custom
-;;   (completion-styles '(orderless basic))
-;;   (completion-category-overrides '((file (styles basic partial-completion))))
-;;   :config
-;;   ;; Configure orderless to use the flex matching style
-;;   (defun jf/set-orderless-component-separator ()
-;;     "Set `orderless-component-separator' for emacs-lisp-mode."
-;;     (setq-local orderless-component-separator "[ &]"))
-;;   (add-hook 'emacs-lisp-mode-hook #'jf/set-orderless-component-separator)
-
-;;   (defun jf/highlight-orderless-matches (fn &rest args)
-;;     (let ((orderless-match-faces [completions-common-part]))
-;;       (apply fn args)))
-;;   (after! company
-;;     (advice-add 'company-capf--candidates :around #'jf/match-orderless-matches)))
-
-;; (use-package vertico
-;;   :init
-;;   (vertico-mode))
-;; (use-package savehist
-;;   :init
-;;   (savehist-mode))
-;; (use-package emacs
-;;   :init
-;;   ;; Add prompt indicator to `completing-read-multiple'.
-;;   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-;;   (defun crm-indicator (args)
-;;     (cons (format "[CRM%s] %s"
-;;                   (replace-regexp-in-string
-;;                    "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-;;                   crm-separator)
-;;                   (car args))
-;;           (cdr args)))
-;;   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-;; ;; Do not allow the cursor in the minibuffer prompt
-;;   (setq minibuffer-prompt-properties
-;;         '(read-only t cursor-intangible t face minibuffer-prompt))
-;;   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-;; ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-;;   ;; Vertico commands are hidden in normal buffers.
-;;   (setq read-extended-command-predicate
-;;         #'command-completion-default-include-p)
-
-;;   ;; Enable recursive minibuffers
-;;   (setq enable-recursive-minibuffers t))
-
-;(keymap-set vertico-map "?" #'minibuffer-completion-help)
-;(keymap-set vertico-map "RET" #'minibuffer-force-complete-and-exit)
-; (keymap-set vertico-map "TAB" #'minibuffer-complete)
-;(keymap-set vertico-map "M-o" #'consult-multi-occur)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Search
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Use Consult instead of isearch
-;(map! "C-s" #'consult-line)
-;(map! "C-r" #'consult-line)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Consult Web
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(after! consult
-  (setq consult-async-input-debounce 0.8
-        consult-async-input-throttle 1.6
-        consult-async-refresh-delay 0.8
-        consult-preview-key "C-o"))  ;;; set the preview key to C-o
-
-(use-package! consult-web
-  :after consult
-  :custom
-  ;; General settings that apply to all sources
-  (consult-web-show-preview t)  ;;; show previews
-  (consult-web-preview-key "C-o")  ;;; set the preview key to C-o
-  (consult-web-highlight-matches t) ;;; highlight matches in minibuffer
-  (consult-web-default-count 5) ;;; set default count
-  (consult-web-default-page 0) ;;; set the default page (default is 0 for the first page)
-
-  ;;; optionally change the consult-web debounce, throttle and delay.
-  ;;; Adjust these (e.g. increase to avoid hiting a source (e.g. an API) too frequently)
-  (consult-web-dynamic-input-debounce 0.8)
-  (consult-web-dynamic-input-throttle 1.6)
-  (consult-web-dynamic-refresh-delay 0.8)
-
-  :config
-  ;; Add sources and configure them
-  ;;; load the example sources provided by default
-  (require 'consult-web-sources)
-
-  ;;; set multiple sources for consult-web-multi command. Change these lists as needed for different interactive commands. Keep in mind that each source has to be a key in `consult-web-sources-alist'.
-  (setq consult-web-multi-sources '("Brave" "Wikipedia" ;; "chatGPT" "Google"
-                                    )) ;; consult-web-multi
-  (setq consult-web-dynamic-sources '(;; "gptel"
-                                      "Brave" ;; "StackOverFlow"
-                                      )) ;; consult-web-dynamic
-  (setq consult-web-omni-sources (list "elfeed" "Brave" "Wikipedia" "YouTube" ;; "gptel"
-                                       'consult-buffer-sources 'consult-notes-all-sources)) ;;consult-web-omni
-  (setq consult-web-dynamic-omni-sources (list "Known Project" "File" "Bookmark" "Buffer" ;; "Reference Roam Nodes"
-                                               ;; "Zettel Roam Nodes"
-                                               "Line Multi" "elfeed" "Brave" "Wikipedia" ;; "gptel"
-                                               "Youtube")) ;;consult-web-dynamic-omni
-
-  ;; Per source customization
-  ;;; Pick you favorite autosuggest command.
-  ;(setq consult-web-default-autosuggest-command #'consult-web-dynamic-brave-autosuggest) ;;or any other autosuggest source you define
-
-  ;;; Set API KEYs. It is recommended to use a function that returns the string for better security.
-  ; (setq consult-web-google-customsearch-key "YOUR-GOOGLE-API-KEY-OR-FUNCTION")
-  ; (setq consult-web-google-customsearch-cx "YOUR-GOOGLE-CX-NUMBER-OR-FUNCTION")
-  (setq consult-web-brave-api-key #'jf/get-brave-api-key)
-  ;; (setq consult-web-stackexchange-api-key "YOUR-STACKEXCHANGE-API-KEY-OR-FUNCTION")
-  ; (setq consult-web-openai-api-key #'jf/get-openai-api-key)
-  ;;; add more keys as needed here.
-  ;; (consult-web-define-source "Brave"
-  ;;                            :narrow-char ?b
-  ;;                            :face 'consult-web-engine-source-face
-  ;;                            :request #'consult-web--brave-fetch-results
-  ;;                            ; :preview-key consult-web-preview-key
-  ;;                            :search-history 'consult-web--search-history
-  ;;                            :selection-history 'consult-web--selection-history
-  ;;                            :dynamic 'both
-  ;;                            )
-)
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Lookup tools
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utilities for googlings things at point
@@ -510,12 +317,12 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package! org-protocol-capture-html
-  :config
-  (setq org-protocol-capture-html-templates
-        '(("w" "Web site" entry
-           (file "")
-           "* %a :website:\n\n%U %?\n\n%:initial"))))
+;; (use-package! org-protocol-capture-html
+;;   :config
+;;   (setq org-protocol-capture-html-templates
+;;         '(("w" "Web site" entry
+;;            (file "")
+;;            "* %a :website:\n\n%U %?\n\n%:initial"))))
 
 (setq org-directory "~/org/")
 (after! org-mode
@@ -552,6 +359,7 @@ when doing \\[mark-defun] only the `defun' form is marked."
      (lua . t)
      (makefile . t)
      (js . t)
+     (typescript-tsx . t)
      (org . t)
      (python . t)
      (sass . t)
@@ -608,9 +416,8 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;; (add-to-list 'lsp-language-id-configuration '(python-mode . "pyright"))
 
 (after! python-ts-mode
-  (setq! flycheck-python-pylint-executable "pylint"))
+  (setq flycheck-python-pylint-executable "pylint"))
 ;       flycheck-python-black-executable "black")
-
 
 ;(defun my-make-python-docstring ()
 ;  (interactive)
@@ -727,14 +534,14 @@ when doing \\[mark-defun] only the `defun' form is marked."
     '(github mu4e grip gnus misc-info repl " ")))
 
 (dolist
-    (entry '(("\\.h\\'" . c++-ts-mode)
+    (entry '(("\\.h\\'" . c++-mode)
              ("\\.tsx?\\'" . nil)
-             ("\\.ts\\'" . typescript-ts-mode)
-             ("\\.tsx\\'" . tsx-ts-mode)
-             ("\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" . c++-ts-mode)
-             ("\\.\\(cc\\|hh\\)\\'" . c++-ts-mode)
+             ("\\.ts\\'" . typescript-mode)
+             ("\\.tsx\\'" . tsx-mode)
+             ("\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" . c++-mode)
+             ("\\.\\(cc\\|hh\\)\\'" . c++-mode)
              ("\\.py[iw]?\\'" . python-ts-mode)
-             ("\\.css\\'" . css-ts-mode)
+             ("\\.css\\'" . css-mode)
              ("\\.json\\'" . json-ts-mode)
              ("\\.cmake\\'" . cmake-mode)
              ("\\CMakeLists\\.txt\\'" . cmake-mode)
@@ -789,6 +596,12 @@ directory \"XDG_CONFIG_HOME/mypy/\"."
 ;; (after! flyspell-mode
 ;;   (set-flyspell-predicate! '(markdown-mode gfm-mode)
 ;;                            #'+markdown-flyspell-word-p))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; arxiv-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package! arxiv-mode
+  :defer t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; chrome.el
