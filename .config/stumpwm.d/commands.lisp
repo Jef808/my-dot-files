@@ -1,74 +1,84 @@
 (require :stumpwm)
 (in-package :stumpwm)
 
-(defvar *screenlayout-dir* "~/.screenlayout/")
-
-;; Enable modeline
-(defun enable-mode-line-on-all-screens ()
-  "Enable the mode line on all screens."
+;;;;;;;;;;;;;;;;;;;;;
+;; Enable modeline ;;
+;;;;;;;;;;;;;;;;;;;;;
+(defcommand enable-mode-line-on-all-screens () ()
   (dolist (screen *screen-list*)
     (dolist (head (screen-heads screen))
-      (enable-mode-line screen head nil))))
+      (enable-mode-line screen head t))))
 
 (defun external-monitor-enabled-p ()
   "Check if an external monitor is enabled."
-  (let ((other-screen
-         (string-right-trim (run-shell-command "xrandr | grep '*' | wc -l" t))))
-    (> (string-to-number other-screen) 1)))
+  (let ((num-screens
+          (parse-integer
+            (run-prog-collect-output
+             *shell-program* "-c" "xrandr | grep '*' | wc -l"))))
+    (> num-screens 1)))
 
-;; Screen layouts
-(defcommand hdmi-on () ()
+;;;;;;;;;;;;;;;;;;;;
+;; Screen layouts ;;
+;;;;;;;;;;;;;;;;;;;;
+(defvar *screenlayout-dir* "~/.screenlayout/")
+
+(defun hdmi-on () ()
+  "Run the `hdmi-on.sh' script found in *screenlayout-dir*."
  (run-shell-command (concat *screenlayout-dir* "hdmi-on.sh"))
   (enable-mode-line-on-all-screens))
 
-(defcommand hdmi-off () ()
-  (run-shell-command "/home/jfa/.screenlayout/hdmi-off.sh"))
+(defun hdmi-off () ()
+  "Run the `hdmi-off.sh' script found in *screenlayout-dir*."
+  (run-shell-command (concat *screenlayout-dir* "hdmi-off.sh")))
 
 (defcommand toggle-external-monitor () ()
-  "Toggle the external monitor."
   (if (external-monitor-enabled-p)
-      (run-shell-command "/home/jfa/.screenlayout/hdmi-off.sh")
-      (progn
-        (run-shell-command "/home/jfa/.screenlayout/hdmi-on.sh")
-        (enable-mode-line-on-all-screens))))
+      (hdmi-off) (hdmi-on)))
 
-(defun take-screenshot ()
-  "Take a screenshot and save it as a PNG file."
-  (let ((xwd-file (merge-pathnames "ss.xwd" (user-homedir-pathname)))
-        (png-file (merge-pathnames "ss.png" (user-homedir-pathname))))
-    (run-shell-command (format nil "xwd -out %f" (namestring xwd-file)))
-    (loop until (probe-file xwd-file)
-          do (sleep 1))
-    (uiop:run-program (list "magick" (namestring xwd-file) (namestring png-file)))
-    (delete-file xwd-file)
-    (namestring png-file)))
+;;;;;;;;;;;;;;;;
+;; Screenshot ;;
+;;;;;;;;;;;;;;;;
+(defcommand screenshot () ()
+  "Run `screenshot' in a shell, if such a program exists."
+  (if (member "screenshot" (programs-in-path) :test #'string-equal)
+    (let ((output (run-shell-command "screenshot" t)))
+      (format nil "Screenshot saved:~%~A" output))
+    (err "No executable named `screenshot' found in path~%")))
 
-(defcommand screenshot (window)
-  ((:string "Enter the window name: "))
-  (run-shell-command (concat "screenshot " window)))
-
-
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Keyboard settings ;;
+;;;;;;;;;;;;;;;;;;;;;;;
 (defcommand set-keyboard-settings () ()
-  (run-shell-command "setxkbmap 'us,ca' -option ctrl:swapcaps -option grp:win_space_toggle"))
+  "Setup my keyboard settings
+This enables toggling the french canadian keyboard layout
+with @key{s-SPC} and swap the @key{CAPS_LOCK} with the @key{TAB} keys."
+  (run-shell-command
+   "setxkbmap 'us,ca' -option ctrl:swapcaps -option grp:win_space_toggle"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Copy the URL from active browser window ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *browser-names* '("Firefox" "Chromium" "Google-chrome" "Brave-browser"))
 
 (defun browser-window-p (window)
   (member (window-class window) *browser-names* :test #'string-equal))
 
 (defcommand active-browser-url () ()
+  "Copy a browser's current URL to the clipboard.
+This does nothing if the current window's WM_CLASS property
+is not a browser class, as defined by the `*browser-names*' list."
   (let ((window (current-window)))
     (when (and window (browser-window-p window))
-      (run-shell-command "active-browser-url" t))))
+      (run-shell-command
+       (format nil "~{~A~^ && ~}"
+               '("active_window_id=$(xdotool getactivewindow)"
+                 "xdotool key F6"
+                 "xdotool key alt+w"
+                 "xdotool key Escape"))))))
 
-(defcommand my/active-browser-url () ()
-  (let ((windowname (window-class (current-window))))
-    (message windowname)
-    (when (member windowname *browser-names*)
-      (run-shell-command "xdotool key F6")
-      (get-x-selection 0.2 '(:primary)))))
-
-
-;(defcommand ellm (prompt &optional context id) ()
- ; (let* ((selection (run-shell-command "xclip -o t"))
-  ;       (prompt (or prompt (emacs-everywhere:with-fallback 'stumpwm:emacs-everywhere-grab)))))(run-shell-command "prompt"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Make LLM prompt with screenshot of active window ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defcommand ss-prompt (prompt) ((:string "Prompt: "))
+  "Makes a prompt to anthropic with a screenshot of active window."
+  (run-shell-command (format nil "ss-prompt ~a" prompt) t))

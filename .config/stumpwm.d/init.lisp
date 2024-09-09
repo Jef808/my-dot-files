@@ -55,10 +55,10 @@
 (setf *message-window-input-gravity* :top)
 (setf *input-window-gravity* :center)
 
+;; Setup second monitor if plugged in
+(unless (external-monitor-enabled-p)
+  (toggle-external-monitor))
 (enable-mode-line-on-all-screens)
-
-;; (unless (head-mode-line (curent-head))
-;;   (toggle-mode-line (current-screen) (current-head)))
 
 ;; Load Slynk
 (ql:quickload :slynk)
