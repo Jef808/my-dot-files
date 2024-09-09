@@ -29,6 +29,10 @@
 (define-key *root-map* (kbd "C-y") "show-clipboard-history")
 (clipboard-history:start-clipboard-manager)
 
+;; Load Slynk
+(ql:quickload :slynk)
+(slynk:create-server :dont-close t)
+
 ;;(load-module "pinentry")
 
 ;; emacs everywhere
@@ -56,15 +60,9 @@
 (setf *input-window-gravity* :center)
 
 ;; Setup second monitor if plugged in
-(unless (external-monitor-enabled-p)
-  (toggle-external-monitor))
+(when (external-monitor-enabled-p)
+  (hdmi-on))
 (enable-mode-line-on-all-screens)
-
-;; Load Slynk
-(ql:quickload :slynk)
-(slynk:create-server :dont-close t)
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Profiling       ;;
