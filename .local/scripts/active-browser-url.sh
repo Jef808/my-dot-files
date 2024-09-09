@@ -7,9 +7,10 @@ active_window_id=$(xdotool getactivewindow)
 
 xdotool key --window "$active_window_id" ctrl+l
 xdotool key --window "$active_window_id" alt+w
+xdotool key --window "$active_window_id" Escape
 
-sleep 0.5
+# # with default vimium keybindings:
+# xdotool key --window "$active_window_id" y
+# xdotool key --window "$active_window_id" y
 
-url=$(xclip -o -selection clipboard)
-
-echo "$url"
+xclip -o -selection clipboard
