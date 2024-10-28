@@ -1,7 +1,17 @@
 #!/usr/bin/env sh
 
-ffmpeg \
-    -i "$1" \
-    -vf "fps=10,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
-    -loop 0 \
-    "$2"
+# Check if resolution argument is provided
+if [ -z "$2" ]; then
+    resolution="320:-1"
+else
+    resolution="$2"
+fi
+
+if [ -z "$3" ]; then
+    fps="$3"
+else
+    fps=10
+fi
+
+ffmpeg -i "$1" -vf "fps=$fps,scale=$resolution:flags=lanczos,palettegen" /tmp/palette.png
+ffmpeg -i "$1" -i /tmp/palette.png -filter_complex "fps=$fps,scale=$resolution:flags=lanczos[x];[x][1:v]paletteuse" -loop 0 /tmp/output.gif

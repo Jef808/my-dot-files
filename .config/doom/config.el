@@ -46,7 +46,7 @@ when doing \\[mark-defun] only the `defun' form is marked."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Appearance
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq! doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'light)
+(setq! doom-font (font-spec :family "JetBrains Mono" :size 12)
        doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
        doom-theme 'doom-dracula)
 
@@ -537,7 +537,7 @@ The optional argument NEW-WINDOW is not used."
     (entry '(("\\.h\\'" . c++-mode)
              ("\\.tsx?\\'" . nil)
              ("\\.ts\\'" . typescript-mode)
-             ("\\.tsx\\'" . tsx-mode)
+             ("\\.tsx\\'" . web-mode)
              ("\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\'" . c++-mode)
              ("\\.\\(cc\\|hh\\)\\'" . c++-mode)
              ("\\.py[iw]?\\'" . python-ts-mode)

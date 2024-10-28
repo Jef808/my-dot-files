@@ -17,24 +17,8 @@ You will be given a the screenshot of a user's active window with a written task
 Use the screenshot to deduce the user's current activity and intent for best executing their task or answering their question.
 """
 
-
-def get_active_window_name() -> str:
-    """Use `xprop` to get the name of the active window."""
-    xprop_res = subprocess.check_output(
-        ["xprop", "-root", "_NET_ACTIVE_WINDOW"],
-        text=True
-    )
-    window_id = xprop_res.rsplit(' ', maxsplit=1)[-1]
-    xprop_res = subprocess.check_output(
-        ["xprop", "-id", window_id, "WM_NAME"],
-        text=True
-    )
-    window_name = xprop_res.split(' = ', maxsplit=1)[-1].replace('"', '').rstrip()
-    return window_name
-
-
 def get_active_window_id() -> str:
-    """Use `xprop` to get the name of the active window."""
+    """Use `xprop` to get the id of the active window."""
     xprop_res = subprocess.check_output(
         ["xprop", "-root", "_NET_ACTIVE_WINDOW"],
         text=True
@@ -81,7 +65,10 @@ def unique_filename(filename: str, extension: str) -> str:
 
 
 def take_screenshot() -> str:
-    """Take a screenshot of the """
+    """Take a screenshot of the active window.
+
+    Return the path to the png file created.
+    """
     xwd_file = TMP_DIRECTORY + unique_filename("ss", "xwd")
     active_window_id = get_active_window_id()
     subprocess.run(
@@ -97,6 +84,7 @@ def take_screenshot() -> str:
 
 
 def to_base64(binary_file) -> str:
+    """Return the base64 encoded content of a binary file."""
     with open(binary_file, 'rb') as f:
         data = f.read()
     b64 = base64.b64encode(data).decode("utf-8")

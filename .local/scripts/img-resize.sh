@@ -7,7 +7,7 @@ usage() {
 }
 
 # Check if ImageMagick is installed
-if ! command -v convert &> /dev/null; then
+if ![ command -v convert &> /dev/null]; then
     echo "Error: ImageMagick is not installed. Please install it and try again."
     exit 1
 
